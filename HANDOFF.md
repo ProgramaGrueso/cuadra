@@ -13,6 +13,8 @@
 - Material de la expo en `~/Documents/ExpoHackaton/`: `00_LEEME.md` (qué subir a NotebookLM y el prompt), documentos 01–09, pitch de 3 min y 1 min, guion Zoom de 15 min, preguntas del jurado, 18 capturas, imágenes de IA y logos.
 - Guía del código para el equipo: `~/Documents/Hackaton2026/Cuadra_Guia_del_Codigo.md`.
 
+- Voz (`c3ea082` y siguiente): espera las voces, no lee con voz inglesa (Firefox) y avisa si el navegador es mudo (Chromium de Arch sin speech-dispatcher). Si el micrófono no abre en 6 s, sugiere el micrófono del teclado. En Android fuera de Chrome (Oppo/HeyTap, enlaces abiertos desde WhatsApp) aparece "Abrir en Chrome para hablar".
+
 ## Ojo
 - `npm run db:test` cuenta los reportes del seed (`= 6`): con datos de la demo (por ejemplo el reporte real de Juan) falla esa línea. Correrlo tras `npm run db:reset` o dentro de una transacción que borre lo posterior al seed.
 - `npm run build` sin variables de la demo pisa `dist/`: usar `scripts/demo.sh recargar`.

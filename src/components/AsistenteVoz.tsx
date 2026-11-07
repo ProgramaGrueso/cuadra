@@ -1,11 +1,11 @@
-import { Bot, Keyboard, Mic, Send, Square, Volume2, X } from 'lucide-react'
+import { Bot, ExternalLink, Keyboard, Mic, Send, Square, Volume2, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { conversar, type Mensaje } from '../lib/agente'
 import { useEmergencia } from '../lib/emergencia'
 import { useEnLinea } from '../lib/offline'
 import { usePerfil } from '../lib/sesion'
-import { ErrorEscucha, escucharFrase, leer, MENSAJE_VOZ, parar, PISTA_TECLADO, reconocedor, textoDePantalla, useEscucharActivo, useHablando, useProblemaVoz, vozDisponible } from '../lib/voz'
+import { enlaceChrome, ErrorEscucha, escucharFrase, leer, MENSAJE_VOZ, navegadorLimitado, parar, PISTA_TECLADO, reconocedor, textoDePantalla, useEscucharActivo, useHablando, useProblemaVoz, vozDisponible } from '../lib/voz'
 
 const SALUDO = '¿En qué le ayudo? Por ejemplo: "Busco un gasfitero", "Quiero pedir que me lleven al médico" o "Léame lo que dice aquí".'
 
@@ -205,6 +205,17 @@ export function AsistenteVoz() {
                 <Keyboard aria-hidden size={24} className="shrink-0" />
                 {puedeHablar ? PISTA_TECLADO : 'Para hablar, toque el cuadro de texto de abajo y luego el micrófono de su teclado.'}
               </p>
+            )}
+            {enLinea && navegadorLimitado() && (
+              <a
+                href={enlaceChrome()}
+                className="flex min-h-14 flex-col items-center justify-center rounded-xl border-2 border-marca bg-superficie p-2 text-center font-bold text-marca"
+              >
+                <span className="flex items-center gap-2 text-lg">
+                  <ExternalLink aria-hidden size={22} /> Abrir en Chrome para hablar
+                </span>
+                <span className="text-base font-normal text-suave">En este navegador el micrófono puede no funcionar. En Chrome tendrá que poner su nombre otra vez.</span>
+              </a>
             )}
             {problemaVoz && <p className="rounded-xl bg-superficie p-3 text-suave">{MENSAJE_VOZ[problemaVoz]}</p>}
 

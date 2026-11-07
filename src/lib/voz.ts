@@ -199,6 +199,23 @@ export function reconocedor() {
 /** Lo que siempre funciona: el dictado del teclado del telefono (Gboard, iPhone, Samsung). */
 export const PISTA_TECLADO = 'También puede tocar el cuadro de texto y luego el micrófono de su teclado.'
 
+// En Android, el dictado solo funciona de verdad en Chrome. El navegador de Oppo (HeyTap), el de
+// Xiaomi, los de Facebook o Instagram y las vistas web dentro de otras apps anuncian el dictado
+// pero start() no abre el microfono: la persona toca "Hablar" y no pasa nada.
+export function navegadorLimitado() {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent
+  if (!/Android/i.test(ua)) return false
+  return /; wv\)|HeyTap|OppoBrowser|MiuiBrowser|SamsungBrowser|FBAN|FBAV|Instagram|Line\/|OPR\/|EdgA|YaBrowser|UCBrowser|Firefox/i.test(ua) || !/Chrome\//.test(ua)
+}
+
+/** Abre esta misma pagina en Chrome (Android). Si Chrome no esta, Android abre el navegador normal. */
+export function enlaceChrome() {
+  const { host, pathname, search } = window.location
+  const respaldo = encodeURIComponent(window.location.href)
+  return `intent://${host}${pathname}${search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${respaldo};end`
+}
+
 // Cada error del navegador, en palabras de la persona. "pista" = sugerir el microfono del teclado.
 function mensajeDeError(error: string): { texto: string; pista: boolean } {
   switch (error) {
