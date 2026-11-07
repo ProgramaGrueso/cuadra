@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "@fontsource/atkinson-hyperlegible/400.css";
+@import "@fontsource/atkinson-hyperlegible/700.css";
+
+/* Los colores son tokens: el modo emergencia solo redefine estos valores. */
+:root {
+  --fondo: #f6f4ee;
+  --superficie: #ffffff;
+  --texto: #1b2420;
+  --texto-suave: #4f5b55;
+  --borde: #d5d2c6;
+  --marca: #14614a;
+  --marca-suave: #dcebe4;
+  --sobre-marca: #ffffff;
+  --sello: #8a5a00;
+  --sello-suave: #fbeecb;
+  --peligro: #a8201a;
+}
+
+:root[data-modo="emergencia"] {
+  --fondo: #fbf1ef;
+  --marca: #a8201a;
+  --marca-suave: #f7dcd8;
+}
+
+@theme inline {
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-texto: var(--texto);
+  --color-suave: var(--texto-suave);
+  --color-borde: var(--borde);
+  --color-marca: var(--marca);
+  --color-marca-suave: var(--marca-suave);
+  --color-sobre-marca: var(--sobre-marca);
+  --color-sello: var(--sello);
+  --color-sello-suave: var(--sello-suave);
+  --color-peligro: var(--peligro);
+}
+
+/* Base 18 px; "letra grande" escala toda la interfaz porque todo va en rem. */
+html { font-size: 112.5%; }
+html[data-letra="grande"] { font-size: 131.25%; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--font-sans);
+  line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--texto);
+  outline-offset: 2px;
+}
+
+.leaflet-container { font-family: inherit; font-size: 1rem; }
+.marcador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: var(--marca);
+  color: var(--sobre-marca);
+  font-weight: 700;
+  font-size: 15px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+}
+.marcador--sello { background: var(--sello); }
+.marcador--yo {
+  width: 20px;
+  height: 20px;
+  background: #1d5fd1;
+  border: 3px solid #fff;
+}
