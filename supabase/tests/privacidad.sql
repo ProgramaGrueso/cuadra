@@ -189,6 +189,41 @@ select pg_temp.debe_fallar(
 select pg_temp.debe_fallar($q$update public.lugares_emergencia set nombre = 'x'$q$, 'un vecino edita un lugar');
 select pg_temp.debe_fallar('delete from public.lugares_emergencia', 'un vecino borra un lugar');
 
+-- Prueba adversarial 2026-11-07
+reset role;
+insert into public.emergencias (id, zona_id, activa, finalizada_en)
+  values ('eeeeeeee-0000-4000-8000-00000000000e', 1, false, now() - interval '7 hours');
+select pg_temp.como('aaaaaaaa-0000-4000-8000-000000000001');
+select pg_temp.debe_fallar(
+  $q$update public.users set nombre = E'​​​' where id = auth.uid()$q$,
+  'nombre hecho solo de caracteres invisibles');
+select pg_temp.debe_fallar(
+  $q$select public.crear_reporte(gen_random_uuid(), 'eeeeeeee-0000-4000-8000-00000000000e', 'otro', 'spam', -12.08, -77.03, 'calle 1')$q$,
+  'reportar en una emergencia cerrada hace 7 h');
+select pg_temp.debe_fallar(
+  $q$insert into public.recursos_criticos (emergencia_id, tipo, accion, lat, lng, user_id)
+     values ('eeeeeeee-0000-4000-8000-00000000000e', 'agua', 'tengo', -12.08, -77.03, auth.uid())$q$,
+  'publicar un recurso en una emergencia cerrada hace 7 h');
+select pg_temp.debe_fallar(
+  $q$insert into public.favores (tipo, categoria_id, texto, lat, lng, autor_id)
+     values ('pido', 'herramientas', E'​​​   ', -12.08, -77.03, auth.uid())$q$,
+  'favor hecho solo de espacios e invisibles');
+-- Irse lejos y volver junto al prestador para recomendarlo
+update public.users set lat = -12.2, lng = -76.9 where id = auth.uid();
+update public.users set lat = -12.0845, lng = -77.034 where id = auth.uid();
+do $$
+begin
+  insert into public.vistos_buenos (prestador_id, vecino_id)
+    select p.id, auth.uid() from public.prestadores p
+    where p.user_id is distinct from auth.uid()
+      and not exists (select 1 from public.vistos_buenos v where v.prestador_id = p.id and v.vecino_id = auth.uid())
+    limit 1;
+  raise exception 'FALLO (se permitio): Visto Bueno justo despues de mudarse';
+exception when others then
+  if sqlerrm not like 'Cambiaste tu ubicación%' then raise; end if;
+  raise notice 'ok  rechazado: Visto Bueno justo despues de mudarse';
+end $$;
+
 -- Sin sesion
 reset role;
 set local role anon;
