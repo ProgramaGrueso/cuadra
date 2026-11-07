@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // En desarrollo el asistente corre aparte: npm run agente
+  server: { proxy: { '/agente': 'http://127.0.0.1:8787' } },
   plugins: [
     react(),
     tailwindcss(),

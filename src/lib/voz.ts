@@ -34,7 +34,7 @@ function suscribir(oyente: () => void) {
   return () => oyentes.delete(oyente)
 }
 
-export const useEscucharActivo = () => useSyncExternalStore(suscribir, () => preferencia && vozDisponible)
+export const useEscucharActivo = () => useSyncExternalStore(suscribir, () => preferencia)
 export const useHablando = () => useSyncExternalStore(suscribir, () => hablando)
 
 function elegirVoz() {
@@ -108,4 +108,50 @@ export function textoDePantalla(raiz: Element) {
     if (t) bloques.push(/[.!?:]$/.test(t) ? t : `${t}.`)
   })
   return bloques.join(' ')
+}
+
+interface Reconocimiento {
+  lang: string
+  interimResults: boolean
+  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null
+  onerror: ((e: { error: string }) => void) | null
+  onend: (() => void) | null
+  start: () => void
+  abort: () => void
+}
+type ConstructorReconocimiento = new () => Reconocimiento
+
+export function reconocedor() {
+  if (typeof window === 'undefined') return undefined
+  const w = window as unknown as { SpeechRecognition?: ConstructorReconocimiento; webkitSpeechRecognition?: ConstructorReconocimiento }
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition
+}
+
+/** Escucha una frase. Devuelve el texto, o lanza un mensaje listo para mostrar. Llama a .abort() para cortar. */
+export function escucharFrase(): { promesa: Promise<string>; abort: () => void } {
+  const R = reconocedor()
+  if (!R) return { promesa: Promise.reject(new Error('Su teléfono no permite dictar. Puede escribir.')), abort: () => {} }
+  parar()
+  const r = new R()
+  r.lang = 'es-PE'
+  r.interimResults = false
+  const promesa = new Promise<string>((resolver, rechazar) => {
+    let texto = ''
+    r.onresult = (e) => {
+      texto = e.results[0]?.[0]?.transcript?.trim() ?? ''
+    }
+    r.onerror = (e) => {
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') rechazar(new Error('Permita el micrófono para hablar.'))
+      else if (e.error === 'no-speech') rechazar(new Error('No le escuché. Intente otra vez.'))
+      else if (e.error === 'aborted') rechazar(new Error(''))
+      else rechazar(new Error('No pude escuchar. Puede escribir.'))
+    }
+    r.onend = () => (texto ? resolver(texto) : rechazar(new Error('No le escuché. Intente otra vez.')))
+    try {
+      r.start()
+    } catch {
+      rechazar(new Error('No pude escuchar. Puede escribir.'))
+    }
+  })
+  return { promesa, abort: () => r.abort() }
 }

@@ -2,9 +2,10 @@ import { HandHeart, LifeBuoy, Siren, Store, UserRound, type LucideIcon } from 'l
 import { useEffect, useState, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { BannerConexion } from './components/AvisosConexion'
-import { BotonEscuchar } from './components/BotonEscuchar'
+import { AsistenteVoz } from './components/AsistenteVoz'
 import { BotonPublicar } from './components/BotonPublicar'
 import { TutorialEmergencia } from './components/TutorialEmergencia'
+import { EVENTO_DATOS } from './lib/agente'
 import { precargarZona } from './lib/datos'
 import { EmergenciaProvider, useEmergencia } from './lib/emergencia'
 import { useEnLinea } from './lib/offline'
@@ -104,6 +105,14 @@ function Aplicacion() {
     if (enLinea) void precargarZona(centro)
   }, [enLinea, centro])
 
+  // Cuando el asistente publica algo, la pantalla abierta se vuelve a montar y relee sus datos.
+  const [recarga, setRecarga] = useState(0)
+  useEffect(() => {
+    const alCambiar = () => setRecarga((n) => n + 1)
+    window.addEventListener(EVENTO_DATOS, alCambiar)
+    return () => window.removeEventListener(EVENTO_DATOS, alCambiar)
+  }, [])
+
   return (
     <div className="mx-auto min-h-dvh max-w-md pb-44">
       <div data-avisos className="sticky top-0 z-[1000]">
@@ -119,7 +128,7 @@ function Aplicacion() {
         <BannerConexion />
       </div>
       <main>
-        <Routes>
+        <Routes key={recarga}>
           <Route path="/" element={<Servicios />} />
           <Route path="/prestador/:id" element={<FichaPrestador />} />
           <Route path="/ofrezco-oficio" element={<OfrezcoOficio />} />
@@ -132,7 +141,7 @@ function Aplicacion() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <BotonEscuchar />
+      <AsistenteVoz />
       {!sinBotonPublicar && <BotonPublicar />}
       <TutorialEmergencia />
       <nav

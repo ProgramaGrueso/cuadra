@@ -4,6 +4,7 @@ import { createReadStream, statSync } from 'node:fs'
 import http from 'node:http'
 import net from 'node:net'
 import { extname, join, resolve, sep } from 'node:path'
+import { manejarAgente } from './agente.mjs'
 
 const PUERTO = Number(process.env.PASARELA_PUERTO ?? 4173)
 const API_HOST = '127.0.0.1'
@@ -110,6 +111,14 @@ function servirEstatico(req, res, ruta) {
 
 const servidor = http.createServer((req, res) => {
   const { pathname, searchParams } = new URL(req.url, 'http://pasarela')
+  if (pathname === '/agente/v1/chat') {
+    if (req.headers.apikey !== CLAVE_ANON) {
+      res.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"no permitido"}')
+      return
+    }
+    void manejarAgente(req, res)
+    return
+  }
   if (!ES_API.test(pathname)) {
     servirEstatico(req, res, pathname)
     return
