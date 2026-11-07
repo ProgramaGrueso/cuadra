@@ -103,7 +103,8 @@ function servirEstatico(req, res, ruta) {
     'content-type': TIPOS[extname(archivo)] ?? 'application/octet-stream',
     'cache-control': inmutable ? 'public, max-age=31536000, immutable' : 'no-cache',
     'x-content-type-options': 'nosniff',
-    'referrer-policy': 'no-referrer',
+    // OpenStreetMap bloquea mosaicos sin origen; solo se envia el dominio, nunca la ruta.
+    'referrer-policy': 'strict-origin-when-cross-origin',
   })
   if (req.method === 'HEAD') res.end()
   else createReadStream(archivo).pipe(res)

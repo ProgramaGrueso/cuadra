@@ -32,6 +32,8 @@ export function MapaPrestadores({ centro, radioM, prestadores }: Props) {
     >
       <TileLayer
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          crossOrigin="anonymous"
+          referrerPolicy="strict-origin-when-cross-origin"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         maxZoom={19}
       />

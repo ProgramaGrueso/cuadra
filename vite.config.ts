@@ -34,9 +34,10 @@ export default defineConfig({
             urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'mapa-tiles',
+              cacheName: 'mapa-tiles-v2',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 14 },
-              cacheableResponse: { statuses: [0, 200] },
+              // Con CORS se ve el estado real: un 403 de OSM ya no se guarda por 14 dias.
+              cacheableResponse: { statuses: [200] },
             },
           },
         ],
