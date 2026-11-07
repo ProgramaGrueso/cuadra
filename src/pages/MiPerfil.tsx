@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { InterruptorEmergencia } from '../components/InterruptorEmergencia'
 import { SelectorUbicacion, type UbicacionElegida } from '../components/SelectorUbicacion'
 import { usePerfil } from '../lib/sesion'
+import { cambiarEscuchar, useEscucharActivo, vozDisponible } from '../lib/voz'
 import { normalizarTelefono } from '../lib/ubicacion'
 
 export function MiPerfil() {
@@ -11,6 +12,7 @@ export function MiPerfil() {
   const [telefono, setTelefono] = useState(perfil.telefono ?? '')
   const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null)
   const zona = zonas.find((z) => z.id === perfil.zona_id)
+  const escuchar = useEscucharActivo()
 
   async function guardar(cambios: Parameters<typeof guardarPerfil>[0], exito: string) {
     try {
@@ -87,6 +89,17 @@ export function MiPerfil() {
             className="h-7 w-7 accent-[var(--marca)]"
           />
         </label>
+        {vozDisponible && (
+          <label className="mt-2 flex min-h-12 items-center justify-between gap-3 rounded-xl border border-borde bg-superficie px-3 py-2 font-bold">
+            Botón Escuchar (lee la pantalla en voz alta)
+            <input
+              type="checkbox"
+              checked={escuchar}
+              onChange={(e) => cambiarEscuchar(e.target.checked)}
+              className="h-7 w-7 shrink-0 accent-[var(--marca)]"
+            />
+          </label>
+        )}
       </section>
 
       {mensaje && (

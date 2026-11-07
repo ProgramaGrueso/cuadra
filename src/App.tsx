@@ -2,6 +2,7 @@ import { HandHeart, LifeBuoy, Siren, Store, UserRound, type LucideIcon } from 'l
 import { useEffect, useState, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { BannerConexion } from './components/AvisosConexion'
+import { BotonEscuchar } from './components/BotonEscuchar'
 import { BotonPublicar } from './components/BotonPublicar'
 import { TutorialEmergencia } from './components/TutorialEmergencia'
 import { precargarZona } from './lib/datos'
@@ -105,7 +106,7 @@ function Aplicacion() {
 
   return (
     <div className="mx-auto min-h-dvh max-w-md pb-44">
-      <div className="sticky top-0 z-[1000]">
+      <div data-avisos className="sticky top-0 z-[1000]">
         {emergencia && (
           <div role="alert" className="flex items-center gap-2 bg-peligro px-4 py-2 font-bold text-white">
             <Siren aria-hidden size={24} className="shrink-0" />
@@ -131,6 +132,7 @@ function Aplicacion() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <BotonEscuchar />
       {!sinBotonPublicar && <BotonPublicar />}
       <TutorialEmergencia />
       <nav

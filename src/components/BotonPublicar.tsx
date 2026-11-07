@@ -33,7 +33,7 @@ export function BotonPublicar() {
   return (
     <>
       <div className="pointer-events-none fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-[1000] mx-auto flex max-w-md items-center justify-end gap-2 px-4">
-        {pista && <p className="rounded-xl bg-texto px-3 py-2 font-bold text-fondo">Publica en 3 toques</p>}
+        {pista && <p className="absolute bottom-full right-4 mb-2 rounded-xl bg-texto px-3 py-2 font-bold text-fondo">Publica en 3 toques</p>}
         <button
           type="button"
           aria-label="Publicar"
