@@ -8,8 +8,6 @@ import { ESTADOS_REPORTE, TIPOS_REPORTE } from '../lib/emergencia'
 import type { GrupoApoyo, LugarEmergencia, Reporte } from '../lib/types'
 import type { Punto } from '../lib/ubicacion'
 
-const PUNTOS_OFICIALES = 9 // registrados por Lince; ver PLAN_SISMO en scripts/generate-seed.mjs
-
 const CLASES: Record<Reporte['estado'], string> = {
   pendiente: 'marcador--pendiente',
   en_atencion: 'marcador--en-atencion',
@@ -154,7 +152,7 @@ export function MapaEmergencia({ centro, reportes }: { centro: Punto; reportes: 
       <p className="text-suave">Los reportes marcan una zona aproximada, nunca la dirección.</p>
       {reunion > 0 && !ocultas.has('reunion') && (
         <p className="text-suave">
-          Puntos de reunión: {reunion} de los {PUNTOS_OFICIALES} de Lince, los únicos con nombre y ubicación confirmados.
+          Los {reunion} puntos de reunión los sugiere el equipo Cuadra. No son la lista oficial de la municipalidad.
         </p>
       )}
     </div>

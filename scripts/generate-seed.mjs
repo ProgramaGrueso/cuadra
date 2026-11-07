@@ -146,12 +146,15 @@ const GRUPOS = [
   ['Parroquia Santa Rosa de Lima', 'parroquia', '014700005', 'Av. Almirante Guisse 2150, Lince', -12.0865479, -77.0389875, `Ubicación: ${OSM}. Datos: gob.pe/14180-parroquias-del-distrito-de-lince, vía buscador, 2026-11-06`],
 ]
 
-// Lince registra 9 puntos de reunion, pero la fuente solo nombra estos parques.
-// El estadio Meliton Carbajal tambien se nombra, pero su ubicacion no esta confirmada: no lleva pin.
+// Puntos de reunion sugeridos por el equipo Cuadra, no por la municipalidad.
+// Los tres de Lince salen de la nota de El Peruano; Campo de Marte (Jesus Maria) lo elige el equipo
+// por ser el espacio abierto mas amplio cerca. El estadio Meliton Carbajal no lleva pin: su ubicacion no esta confirmada.
+const SUGERIDO = 'Sugerido por el equipo Cuadra'
 const LUGARES = [
-  ['Parque Castilla', 'punto_reunion', null, 'Punto de reunión oficial de Lince.', -12.08859, -77.04138, `${PLAN_SISMO}. Ubicación: ${OSM}`],
-  ['Parque Pedro Ruiz Gallo', 'punto_reunion', null, 'Punto de reunión oficial de Lince. En su sótano funciona el COED del distrito.', -12.0825, -77.03108, `${PLAN_SISMO}. Ubicación: ${OSM}`],
-  ['Parque Santos Dumont', 'punto_reunion', null, 'Punto de reunión oficial de Lince.', -12.08724, -77.02705, `${PLAN_SISMO}. Ubicación: ${OSM}`],
+  ['Parque Castilla', 'punto_reunion', 'Lince', `${SUGERIDO}, según la nota de El Peruano.`, -12.08859, -77.04138, `${PLAN_SISMO}. Ubicación: ${OSM}`],
+  ['Parque Pedro Ruiz Gallo', 'punto_reunion', 'Lince', `${SUGERIDO}, según la nota de El Peruano. En su sótano funciona el COED del distrito.`, -12.0825, -77.03108, `${PLAN_SISMO}. Ubicación: ${OSM}`],
+  ['Parque Santos Dumont', 'punto_reunion', 'Lince', `${SUGERIDO}, según la nota de El Peruano.`, -12.08724, -77.02705, `${PLAN_SISMO}. Ubicación: ${OSM}`],
+  ['Campo de Marte', 'punto_reunion', 'Jesús María', `${SUGERIDO} por ser un espacio abierto amplio. No es un punto oficial.`, -12.0681181, -77.0418936, `Elegido por el equipo Cuadra, 2026-11-07. Ubicación: ${OSM}`],
   ['plazaVea Risso', 'abastecimiento', 'Av. Arequipa 2250, Lince', 'Supermercado. En una emergencia puede estar cerrado o sin stock.', -12.08667, -77.03483, `Dirección: plazavea.com.pe/recojo-en-tienda, vía buscador, 2026-11-06. Ubicación: ${OSM}`],
 ]
 

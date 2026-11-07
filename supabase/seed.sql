@@ -303,9 +303,10 @@ insert into public.grupos_apoyo (nombre, tipo, telefono, direccion, lat, lng, fu
   ('Parroquia Santa Rosa de Lima', 'parroquia', '014700005', 'Av. Almirante Guisse 2150, Lince', -12.0865479, -77.0389875, 'Ubicación: OpenStreetMap, consultado 2026-11-06. Datos: gob.pe/14180-parroquias-del-distrito-de-lince, vía buscador, 2026-11-06', 1);
 
 insert into public.lugares_emergencia (nombre, tipo, direccion, detalle, lat, lng, fuente, zona_id) values
-  ('Parque Castilla', 'punto_reunion', null, 'Punto de reunión oficial de Lince.', -12.08859, -77.04138, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
-  ('Parque Pedro Ruiz Gallo', 'punto_reunion', null, 'Punto de reunión oficial de Lince. En su sótano funciona el COED del distrito.', -12.0825, -77.03108, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
-  ('Parque Santos Dumont', 'punto_reunion', null, 'Punto de reunión oficial de Lince.', -12.08724, -77.02705, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Parque Castilla', 'punto_reunion', 'Lince', 'Sugerido por el equipo Cuadra, según la nota de El Peruano.', -12.08859, -77.04138, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Parque Pedro Ruiz Gallo', 'punto_reunion', 'Lince', 'Sugerido por el equipo Cuadra, según la nota de El Peruano. En su sótano funciona el COED del distrito.', -12.0825, -77.03108, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Parque Santos Dumont', 'punto_reunion', 'Lince', 'Sugerido por el equipo Cuadra, según la nota de El Peruano.', -12.08724, -77.02705, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Campo de Marte', 'punto_reunion', 'Jesús María', 'Sugerido por el equipo Cuadra por ser un espacio abierto amplio. No es un punto oficial.', -12.0681181, -77.0418936, 'Elegido por el equipo Cuadra, 2026-11-07. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
   ('plazaVea Risso', 'abastecimiento', 'Av. Arequipa 2250, Lince', 'Supermercado. En una emergencia puede estar cerrado o sin stock.', -12.08667, -77.03483, 'Dirección: plazavea.com.pe/recojo-en-tienda, vía buscador, 2026-11-06. Ubicación: OpenStreetMap, consultado 2026-11-06', 1);
 
 insert into public.emergencias (id, zona_id, activa, es_simulacro, mensaje) values
