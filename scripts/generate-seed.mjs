@@ -131,16 +131,28 @@ const recursos = RECURSOS.map(([tipo, accion, cantidad, detalle, persona], i) =>
 })
 
 const OSM = 'OpenStreetMap, consultado 2026-11-06'
-const WEB = 'Búsqueda web sobre gob.pe/munilince, 2026-11-06; confirmar antes de la demo'
+const MUNI = 'Municipalidad de Lince, gob.pe/institucion/munilince/contacto-y-numeros-de-emergencias, vía buscador, 2026-11-06'
+const PLAN_SISMO = 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347'
+// Solo lugares confirmados. Ubicacion en el mapa: OSM; lo demas, la fuente que se indica.
+// El Serenazgo no tiene pin: su sede no esta confirmada, asi que lat/lng es la municipalidad.
 const GRUPOS = [
-  ['Compañía de Bomberos Lima N.º 4', 'bomberos', '014716442', 'Jr. Manuel Candamo, Lince', -12.0819004, -77.0321975, `${OSM}; teléfono: ${WEB}`],
-  ['Comisaría PNP de Lince', 'comisaria', '014712606', null, -12.0833274, -77.0271535, `${OSM}; teléfono: ${WEB}`],
-  ['Serenazgo de Lince (central)', 'serenazgo', '016191802', 'Municipalidad: Av. Juan Pardo de Zela 480, Lince', -12.0833313, -77.0318518, `${WEB}; ubicación de la municipalidad`],
-  ['Municipalidad de Lince', 'municipio', '016191818', 'Av. Juan Pardo de Zela 480, Lince', -12.0833313, -77.0318518, OSM],
-  ['Centro de Salud de Lince', 'salud', null, 'Jr. Manuel Candamo, Lince', -12.0818643, -77.0319682, OSM],
-  ['SISOL Salud Lince', 'salud', '014726755', 'Av. Gral. César Canevaro 550, Lince', -12.0840314, -77.0395119, OSM],
-  ['Policlínico Municipal de Lince', 'salud', null, 'Av. Militar, Lince', -12.0838266, -77.0316762, OSM],
-  ['Parroquia Santa Rosa de Lima', 'parroquia', null, null, -12.0865479, -77.0389875, OSM],
+  ['Compañía de Bomberos Lima N.º 4', 'bomberos', '014716442', 'Jr. Manuel Candamo, Lince', -12.0819004, -77.0321975, `Ubicación: ${OSM}. Teléfono: ${MUNI}`],
+  ['Comisaría PNP de Lince', 'comisaria', '014712606', null, -12.0833274, -77.0271535, `Ubicación: ${OSM}. Teléfono: ${MUNI}`],
+  ['Serenazgo de Lince (central)', 'serenazgo', '016191802', null, -12.0833313, -77.0318518, MUNI],
+  ['Municipalidad de Lince', 'municipio', '016191818', 'Av. Juan Pardo de Zela 480, Lince', -12.0833313, -77.0318518, `Ubicación: ${OSM}. Datos: ${MUNI}`],
+  ['Centro de Salud de Lince', 'salud', null, 'Jr. Manuel Candamo 495, Lince', -12.0818643, -77.0319682, `Ubicación: ${OSM}. Dirección: DIGEMID, puntos de acopio de Lima, 01-2026`],
+  ['SISOL Salud Lince', 'salud', null, 'Av. Gral. César Canevaro 550, Lince', -12.0840314, -77.0395119, `Establecimiento: ${PLAN_SISMO}. Ubicación y dirección: ${OSM}`],
+  ['Clínica Javier Prado', 'salud', null, 'Av. Javier Prado Este 499', -12.0911, -77.02845, `Establecimiento: ${PLAN_SISMO}. Ubicación y dirección: ${OSM}`],
+  ['Parroquia Santa Rosa de Lima', 'parroquia', '014700005', 'Av. Almirante Guisse 2150, Lince', -12.0865479, -77.0389875, `Ubicación: ${OSM}. Datos: gob.pe/14180-parroquias-del-distrito-de-lince, vía buscador, 2026-11-06`],
+]
+
+// Lince registra 9 puntos de reunion, pero la fuente solo nombra estos parques.
+// El estadio Meliton Carbajal tambien se nombra, pero su ubicacion no esta confirmada: no lleva pin.
+const LUGARES = [
+  ['Parque Castilla', 'punto_reunion', null, 'Punto de reunión oficial de Lince.', -12.08859, -77.04138, `${PLAN_SISMO}. Ubicación: ${OSM}`],
+  ['Parque Pedro Ruiz Gallo', 'punto_reunion', null, 'Punto de reunión oficial de Lince. En su sótano funciona el COED del distrito.', -12.0825, -77.03108, `${PLAN_SISMO}. Ubicación: ${OSM}`],
+  ['Parque Santos Dumont', 'punto_reunion', null, 'Punto de reunión oficial de Lince.', -12.08724, -77.02705, `${PLAN_SISMO}. Ubicación: ${OSM}`],
+  ['plazaVea Risso', 'abastecimiento', 'Av. Arequipa 2250, Lince', 'Supermercado. En una emergencia puede estar cerrado o sin stock.', -12.08667, -77.03483, `Dirección: plazavea.com.pe/recojo-en-tienda, vía buscador, 2026-11-06. Ubicación: ${OSM}`],
 ]
 
 const NUMEROS = [['Policía Nacional', '105', 1], ['Bomberos', '116', 2], ['SAMU (ambulancia)', '106', 3], ['Defensa Civil', '115', 4]]
@@ -175,6 +187,9 @@ ${valores(favores)};
 
 insert into public.grupos_apoyo (nombre, tipo, telefono, direccion, lat, lng, fuente, zona_id) values
 ${valores(GRUPOS.map((g) => [...g, 1]))};
+
+insert into public.lugares_emergencia (nombre, tipo, direccion, detalle, lat, lng, fuente, zona_id) values
+${valores(LUGARES.map((l) => [...l, 1]))};
 
 insert into public.emergencias (id, zona_id, activa, es_simulacro, mensaje) values
   (${q(EMERGENCIA)}, 1, false, true, 'Simulacro: sismo en Lince. Reporta a quien necesite ayuda.');

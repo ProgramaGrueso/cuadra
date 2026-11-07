@@ -1,6 +1,6 @@
 import { conCache } from './offline'
 import { supabase } from './supabase'
-import type { FavorCercano, GrupoApoyo, NumeroEmergencia, Oficio, PrestadorCercano } from './types'
+import type { FavorCercano, GrupoApoyo, LugarEmergencia, NumeroEmergencia, Oficio, PrestadorCercano } from './types'
 import type { Punto } from './ubicacion'
 
 export const RADIO_MAXIMO = 2000
@@ -13,7 +13,12 @@ export const leerNumeros = () =>
 
 export const leerGrupos = () =>
   conCache<GrupoApoyo[]>('grupos', () =>
-    supabase.from('grupos_apoyo').select('id, nombre, tipo, telefono, direccion').eq('activo_en_emergencia', true).order('nombre'),
+    supabase.from('grupos_apoyo').select('id, nombre, tipo, telefono, direccion, lat, lng, fuente').eq('activo_en_emergencia', true).order('nombre'),
+  )
+
+export const leerLugares = () =>
+  conCache<LugarEmergencia[]>('lugares', () =>
+    supabase.from('lugares_emergencia').select('id, nombre, tipo, direccion, detalle, lat, lng, fuente').order('nombre'),
   )
 
 // Siempre se trae el radio mayor y se filtra en el cliente: asi los filtros responden
@@ -38,6 +43,7 @@ export async function precargarZona(centro: Punto) {
     leerOficios(),
     leerNumeros(),
     leerGrupos(),
+    leerLugares(),
     leerPrestadores(centro, false),
     leerPrestadores(centro, true),
     leerFavores(centro),

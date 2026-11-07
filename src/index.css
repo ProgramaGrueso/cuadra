@@ -56,7 +56,8 @@ body {
   outline-offset: 2px;
 }
 
-.leaflet-container { font-family: inherit; font-size: 1rem; }
+/* isolation: los controles del mapa no deben pasar por encima del aviso fijo de emergencia. */
+.leaflet-container { font-family: inherit; font-size: 1rem; isolation: isolate; }
 .marcador {
   display: flex;
   align-items: center;
@@ -75,6 +76,13 @@ body {
 .marcador--pendiente { background: var(--peligro); }
 .marcador--en-atencion { background: var(--sello); }
 .marcador--atendido { background: #6b7570; }
+/* Los lugares son cuadrados y con icono: se distinguen de un reporte sin depender del color. */
+.marcador--lugar { border-radius: 8px; color: #fff; }
+.marcador--lugar svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.marcador--grupos { background: #1d5fd1; }
+.marcador--salud { background: #6d28d9; }
+.marcador--reunion { background: #166534; }
+.marcador--viveres { background: #92400e; }
 .marcador--yo {
   width: 20px;
   height: 20px;

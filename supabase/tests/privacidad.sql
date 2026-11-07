@@ -178,10 +178,22 @@ select pg_temp.debe_fallar(
   $q$select public.marcar_checkin('00000000-0000-4000-8005-ffffffffffff')$q$,
   'marcar estoy bien en una emergencia inexistente');
 
+-- Lugares del mapa: los vecinos los leen, nadie los edita, y todos llevan fuente
+select pg_temp.comprobar(
+  (select count(*) from public.lugares_emergencia) > 0
+    and not exists (select 1 from public.lugares_emergencia where trim(fuente) = ''),
+  'los lugares del mapa se leen y llevan fuente');
+select pg_temp.debe_fallar(
+  $q$insert into public.lugares_emergencia (nombre, tipo, lat, lng, fuente) values ('x', 'punto_reunion', 0, 0, 'x')$q$,
+  'un vecino agrega un lugar');
+select pg_temp.debe_fallar($q$update public.lugares_emergencia set nombre = 'x'$q$, 'un vecino edita un lugar');
+select pg_temp.debe_fallar('delete from public.lugares_emergencia', 'un vecino borra un lugar');
+
 -- Sin sesion
 reset role;
 set local role anon;
 select pg_temp.debe_fallar('select * from public.favores', 'anon lee favores');
+select pg_temp.debe_fallar('select * from public.lugares_emergencia', 'anon lee lugares');
 select pg_temp.debe_fallar('select * from public.prestadores_cercanos(-12.08, -77.03, 2000)', 'anon usa la RPC');
 select pg_temp.debe_fallar($q$select public.contacto_prestador('00000000-0000-4000-8002-000000000001')$q$, 'anon pide un telefono');
 select pg_temp.debe_fallar('select public.activar_emergencia(1::smallint)', 'anon activa emergencia');

@@ -61,4 +61,4 @@ Necesitan conexión: entrar por primera vez, activar el modo emergencia, dar un 
 
 ## Datos de demostración
 
-`supabase/seed.sql` se genera con `scripts/generate-seed.mjs`. Vecinos, prestadores, favores y reportes son ficticios, y sus teléfonos quedan vacíos para no enlazar a personas reales por WhatsApp. Los grupos de apoyo y los números de emergencia son reales, con su fuente en la columna `fuente` de `grupos_apoyo`.
+`supabase/seed.sql` se genera con `scripts/generate-seed.mjs`. Vecinos, prestadores, favores y reportes son ficticios, y sus teléfonos quedan vacíos para no enlazar a personas reales por WhatsApp. Son reales, con su fuente en la columna `fuente`, los grupos de apoyo (`grupos_apoyo`) y los lugares del mapa de emergencia (`lugares_emergencia`: puntos de reunión y un supermercado). Una tienda en el mapa no asegura stock durante una emergencia. Los recursos que publican los vecinos siguen en la lista de Recursos y los del seed son ficticios, por eso no van al mapa.

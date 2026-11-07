@@ -125,4 +125,18 @@ export interface GrupoApoyo {
   tipo: string
   telefono: string | null
   direccion: string | null
+  lat: number
+  lng: number
+  fuente: string | null
+}
+
+export interface LugarEmergencia {
+  id: string
+  nombre: string
+  tipo: 'punto_reunion' | 'abastecimiento'
+  direccion: string | null
+  detalle: string | null
+  lat: number
+  lng: number
+  fuente: string
 }

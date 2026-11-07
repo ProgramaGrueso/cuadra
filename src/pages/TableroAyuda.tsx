@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase'
 import type { CruceRecurso, Emergencia, RecursoCercano, Reporte } from '../lib/types'
 import { formatearDistancia } from '../lib/ubicacion'
 
-const MapaReportes = lazy(() => import('../components/MapaReportes').then((m) => ({ default: m.MapaReportes })))
+const MapaEmergencia = lazy(() => import('../components/MapaEmergencia').then((m) => ({ default: m.MapaEmergencia })))
 
 const COLUMNAS = 'id, tipo, descripcion, lat_aprox, lng_aprox, estado, reportado_por, atendido_por, ts'
 const ORDEN_ESTADO: Record<Reporte['estado'], number> = { pendiente: 0, en_atencion: 1, atendido: 2 }
@@ -208,9 +208,8 @@ function Vecinos({ emergencia }: { emergencia: Emergencia }) {
       </p>
       <PendientesDeEnvio tipos={['reporte']} />
       <Suspense fallback={<p className="py-8 text-center text-suave">Cargando mapa…</p>}>
-        <MapaReportes centro={centro} reportes={reportes} />
+        <MapaEmergencia centro={centro} reportes={reportes} />
       </Suspense>
-      <p className="text-suave">En el mapa se ve una zona aproximada, nunca la dirección.</p>
       {!perfil.verificado && <p className="rounded-xl bg-marca-suave p-3 font-bold">Solo los voluntarios verificados pueden aceptar reportes.</p>}
       {aviso && (
         <p role="alert" className="font-bold text-peligro">
