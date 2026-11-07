@@ -93,7 +93,8 @@ enabled = true
 # max_header_length = 4096
 
 [studio]
-enabled = true
+# Desactivado: Studio no pide login y Docker lo publicaria en todas las interfaces.
+enabled = false
 # Port to use for Supabase Studio.
 port = 54323
 # External URL of the API server that frontend connects to.
@@ -164,6 +165,8 @@ site_url = "http://127.0.0.1:3000"
 additional_redirect_urls = ["https://127.0.0.1:3000"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
+# Se genera en supabase/.env (scripts/demo.sh): el secreto local por defecto es publico.
+jwt_secret = "env(CUADRA_JWT_SECRET)"
 # JWT issuer URL. If not set, defaults to auth.external_url.
 # jwt_issuer = ""
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
