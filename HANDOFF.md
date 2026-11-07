@@ -1,24 +1,29 @@
-# HANDOFF — Cuadra (2026-11-07)
+# HANDOFF — Cuadra (2026-11-07, noche)
 
-## Hecho en esta sesión (rama `funciones-completas`, sin push)
-- `464bf7a` Mapa de emergencia con grupos de apoyo y lugares reales (tabla `lugares_emergencia`).
-- `cc10a3c` Puntos de reunión "sugeridos por el equipo": Castilla, Pedro Ruiz Gallo, Santos Dumont (nota de El Peruano) y Campo de Marte (Jesús María). El mapa aclara que no son la lista oficial.
-- `2db02e6` **Asistente por voz** (botón "Asistente", abajo a la izquierda): habla/escribe y el asistente maneja la app con DeepSeek (buscar, contactar, publicar favores, reportes, recursos, Estoy bien, llamar). Toda publicación pide Sí/No. Sin señal queda "Escuchar esta pantalla". Archivos: `scripts/agente.mjs` (servidor, prompt y herramientas), `src/lib/agente.ts` (ejecuta herramientas), `src/components/AsistenteVoz.tsx`, `src/lib/voz.ts`.
-- Logo nuevo: casa con techo escalonado (chakana), corazón, vecinos y la calle. `public/icon*.{svg,png}`, `marca/` (logos horizontales para el pitch). Conceptos de Krea2 en `~/ComfyUI/output/cuadra_logo/`.
+## Estado
+- Rama `funciones-completas`, PR #1 hacia `main`. Todo subido.
+- Demo arriba: pasarela en 127.0.0.1:4173 + túnel `https://falling-holmes-triple-significance.trycloudflare.com`. Apagar con `scripts/demo.sh down` y confirmar con `ss -ltnp`.
+- Modo emergencia de la zona Lince: **apagado** (se apagó al tomar capturas). Juan Ganoza (verificado) lo activa desde Mi perfil.
 
-## Verificado
-- `npm run build` OK, `npm run db:test` sin fallas, `npm run db:reset` aplicado.
-- Asistente probado con la API real de DeepSeek en Chromium (Playwright, 390×844): registro → "Busco un gasfitero cerca" (4 resultados, ~2 s) → "Ábrame la ficha del más cercano" (navega a la ficha) → "Quiero pedir que me lleven al médico…" (aparece Sí/No; con No no se publica). Emergencia grave: responde 116/106 sin herramientas. Inyección en texto de vecinos: rechazada.
-- Notas DeepSeek: hay que mandar `thinking: {type: 'disabled'}` (si no, el segundo turno falla pidiendo `reasoning_content`). El servidor quita markdown antes de leer en voz alta.
+## Hecho hoy
+- Asistente por voz con DeepSeek (`2db02e6`, `266bc56`); voz estable en Android (`b615ab4`; la usuaria confirmó que funciona).
+- Identidad visual: cabecera verde con logo y franja chakana, "+" terracota, tema rojo en emergencia (`b615ab4`).
+- Mapa en escritorio (`d8709e0`): OSM devolvía 403 porque la pasarela mandaba `no-referrer`, y Workbox cacheaba las teselas bloqueadas. Ahora manda el origen, solo cachea 200 (`mapa-tiles-v2`) y borra el caché viejo.
+- Prueba adversarial (`fd2486b`): 6 huecos cerrados en `supabase/migrations/20261107000000_endurecer.sql` (aplicada a la base viva sin reset). Informe en `docs/PRUEBA_ADVERSARIAL.md`. `privacidad.sql` tiene 62 comprobaciones.
+- Material de la expo en `~/Documents/ExpoHackaton/`: `00_LEEME.md` (qué subir a NotebookLM y el prompt), documentos 01–09, pitch de 3 min y 1 min, guion Zoom de 15 min, preguntas del jurado, 18 capturas, imágenes de IA y logos.
+- Guía del código para el equipo: `~/Documents/Hackaton2026/Cuadra_Guia_del_Codigo.md`.
+
+## Ojo
+- `npm run db:test` cuenta los reportes del seed (`= 6`): con datos de la demo (por ejemplo el reporte real de Juan) falla esa línea. Correrlo tras `npm run db:reset` o dentro de una transacción que borre lo posterior al seed.
+- `npm run build` sin variables de la demo pisa `dist/`: usar `scripts/demo.sh recargar`.
+- Hay usuarios de prueba en la base de la demo ("Rosa Prueba", "Prueba Marca", "Vecina Demo", "Carmen Demo").
 
 ## Pendiente
-- Clave de DeepSeek ya está en `supabase/.env` (ignorado por git). Opcional `DEEPSEEK_MODEL` (por defecto `deepseek-v4-flash`).
-- Probar el micrófono (dictado) y la voz en un Android real: en el navegador sin cabeza solo se probó escribiendo.
-- Desarrollo del asistente: `npm run agente` en otra terminal junto a `npm run dev`. En la demo lo sirve la pasarela.
-- Probar Escuchar en un Android real (voz es-PE/es-419, y si funciona sin señal).
-- Recorrer el flujo completo en el celular con `scripts/demo.sh up`.
-- Push y PR a `main`.
-- Guion de demo y material del pitch (imágenes/video con ComfyUI).
+- Grabar el video de respaldo (guion en `ExpoHackaton/07_…`).
+- Repartir roles y preguntas; ensayar 3 veces con cronómetro.
+- Entrega en OneDrive antes del domingo 8: `git archive -o cuadra.zip HEAD` (no incluye `.env`).
+- Hoja de ruta: verificación con DNI, límite por IP del asistente, notificaciones push.
 
 ## Comandos
-- `npm run dev` · `npm run db:reset` · `npm run db:test` · `scripts/demo.sh up|down`
+- `npm run dev` · `npm run agente` · `npm run db:reset` · `npm run db:test`
+- `scripts/demo.sh up|recargar|verificar "Nombre"|down`
