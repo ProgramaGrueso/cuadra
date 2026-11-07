@@ -37,9 +37,13 @@ export function Bienvenida({ alTerminar }: { alTerminar: () => void }) {
         )}
       </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
-        <span className="flex h-28 w-28 items-center justify-center rounded-full bg-marca-suave text-marca">
-          <Icono aria-hidden size={60} />
-        </span>
+        {indice === 0 ? (
+          <img src="/icon.svg" alt="Logo de Cuadra" className="h-32 w-32 rounded-3xl shadow-lg" />
+        ) : (
+          <span className="flex h-28 w-28 items-center justify-center rounded-full bg-marca-suave text-marca">
+            <Icono aria-hidden size={60} />
+          </span>
+        )}
         <h1 className="text-3xl font-bold">{titulo}</h1>
         <p className="text-lg">{texto}</p>
       </div>

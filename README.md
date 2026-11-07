@@ -27,6 +27,7 @@ Demo (app y API detrás de una sola pasarela en `127.0.0.1:4173`):
 scripts/demo.sh up --sin-tunel    # solo en este PC
 scripts/demo.sh up                # además abre un túnel de Cloudflare e imprime la URL
 scripts/demo.sh verificar "Nombre del vecino"   # le permite activar el modo emergencia
+scripts/demo.sh recargar          # tras cambiar código: recompila sin cambiar el link
 scripts/demo.sh down              # apaga pasarela, túnel y base
 ```
 

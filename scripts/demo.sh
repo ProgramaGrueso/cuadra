@@ -46,13 +46,7 @@ en_segundo_plano() {
   echo $! >"$ESTADO/$nombre.pid"
 }
 
-up() {
-  asegurar_secreto
-  parar tunel
-  parar pasarela
-  npx supabase start >/dev/null
-  aplicar_whatsapp_demo
-
+compilar_y_servir() {
   local anon
   anon="$(valor_status ANON_KEY)"
   [[ -n "$anon" ]] || { echo 'No se pudo leer la clave anon' >&2; exit 1; }
@@ -66,6 +60,26 @@ up() {
     sleep 0.5
   done
   curl -fsS -o /dev/null "http://127.0.0.1:$PUERTO/" || { echo 'La pasarela no arranco' >&2; exit 1; }
+}
+
+# Tras cambiar codigo: recompila y reinicia la pasarela sin tocar el tunel (el link no cambia).
+recargar() {
+  parar pasarela
+  for _ in {1..25}; do ss -ltn | grep -qE ":$PUERTO\b" || break; sleep 0.2; done
+  compilar_y_servir
+  local url
+  url="$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' "$ESTADO/tunel.log" 2>/dev/null | tail -1)"
+  echo "Recargada. ${url:+Mismo link: $url}"
+}
+
+up() {
+  asegurar_secreto
+  parar tunel
+  parar pasarela
+  npx supabase start >/dev/null
+  aplicar_whatsapp_demo
+
+  compilar_y_servir
 
   if [[ "${1:-}" == '--sin-tunel' ]]; then
     echo "Demo local: http://127.0.0.1:$PUERTO"
@@ -99,6 +113,7 @@ verificar() {
 case "${1:-}" in
   up) shift; up "$@" ;;
   down) down ;;
+  recargar) recargar ;;
   verificar) shift; verificar "$@" ;;
-  *) echo 'Uso: scripts/demo.sh up [--sin-tunel] | down | verificar NOMBRE' >&2; exit 2 ;;
+  *) echo 'Uso: scripts/demo.sh up [--sin-tunel] | recargar | down | verificar NOMBRE' >&2; exit 2 ;;
 esac

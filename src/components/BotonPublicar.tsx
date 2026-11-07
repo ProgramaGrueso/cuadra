@@ -42,7 +42,7 @@ export function BotonPublicar() {
             setPista(false)
             marcarVisto('pista-publicar')
           }}
-          className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full bg-marca text-sobre-marca shadow-lg"
+          className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full bg-acento text-white shadow-lg ring-4 ring-sol/60"
         >
           <Plus aria-hidden size={34} />
         </button>

@@ -1,4 +1,4 @@
-import { HandHeart, LifeBuoy, Siren, Store, UserRound, type LucideIcon } from 'lucide-react'
+import { HandHeart, LifeBuoy, MapPin, Siren, Store, UserRound, type LucideIcon } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { BannerConexion } from './components/AvisosConexion'
@@ -98,7 +98,8 @@ function Aplicacion() {
   const { pathname } = useLocation()
   const emergencia = useEmergencia()
   const enLinea = useEnLinea()
-  const { centro } = usePerfil()
+  const { centro, perfil, zonas } = usePerfil()
+  const zona = zonas.find((z) => z.id === perfil.zona_id)
   const sinBotonPublicar = /^\/(publicar|recurso|reportar|ofrezco-oficio|tutorial)/.test(pathname)
 
   useEffect(() => {
@@ -116,6 +117,16 @@ function Aplicacion() {
   return (
     <div className="mx-auto min-h-dvh max-w-md pb-44">
       <div data-avisos className="sticky top-0 z-[1000]">
+        <header className="flex items-center gap-3 bg-marca px-4 py-2 text-sobre-marca">
+          <img src="/icon.svg" alt="" className="h-10 w-10 rounded-xl ring-2 ring-white/40" />
+          <span className="text-2xl font-bold tracking-tight">Cuadra</span>
+          {zona && (
+            <span className="ml-auto flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-base font-bold">
+              <MapPin aria-hidden size={18} /> {zona.nombre}
+            </span>
+          )}
+        </header>
+        <div aria-hidden className="franja-chakana" />
         {emergencia && (
           <div role="alert" className="flex items-center gap-2 bg-peligro px-4 py-2 font-bold text-white">
             <Siren aria-hidden size={24} className="shrink-0" />
@@ -157,8 +168,8 @@ function Aplicacion() {
                   to={ruta}
                   end
                   className={({ isActive }) =>
-                    `flex min-h-16 flex-col items-center justify-center gap-0.5 font-bold ${
-                      isActive ? 'text-marca' : 'text-suave'
+                    `relative flex min-h-16 flex-col items-center justify-center gap-0.5 font-bold ${
+                      isActive ? 'text-marca before:absolute before:inset-x-6 before:top-0 before:h-1.5 before:rounded-b-full before:bg-sol' : 'text-suave'
                     }`
                   }
                 >

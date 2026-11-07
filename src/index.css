@@ -15,12 +15,17 @@
   --sello: #8a5a00;
   --sello-suave: #fbeecb;
   --peligro: #a8201a;
+  /* Del logo: techo escalonado (terracota) y la calle (amarillo). La terracota oscura pasa contraste AA con blanco. */
+  --acento: #b8432a;
+  --acento-suave: #f8e1d8;
+  --sol: #f2b632;
 }
 
 :root[data-modo="emergencia"] {
   --fondo: #fbf1ef;
   --marca: #a8201a;
   --marca-suave: #f7dcd8;
+  --acento: #a8201a;
 }
 
 @theme inline {
@@ -36,6 +41,27 @@
   --color-sello: var(--sello);
   --color-sello-suave: var(--sello-suave);
   --color-peligro: var(--peligro);
+  --color-acento: var(--acento);
+  --color-acento-suave: var(--acento-suave);
+  --color-sol: var(--sol);
+}
+
+/* Franja escalonada bajo la cabecera: el mismo techo del logo, como un tejido andino.
+   Con mascara toma el color de --marca, asi en emergencia tambien se vuelve roja. */
+.franja-chakana {
+  position: relative;
+  height: 10px;
+  background: var(--marca);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='10'%3E%3Cpath d='M0 0h32v1h-6v3h-3v3h-3v3h-8V7H9V4H6V1H0z'/%3E%3C/svg%3E") repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='10'%3E%3Cpath d='M0 0h32v1h-6v3h-3v3h-3v3h-8V7H9V4H6V1H0z'/%3E%3C/svg%3E") repeat-x;
+}
+.franja-chakana::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--sol);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='10'%3E%3Cpath d='M14 8V6h4v2z'/%3E%3C/svg%3E") repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='10'%3E%3Cpath d='M14 8V6h4v2z'/%3E%3C/svg%3E") repeat-x;
 }
 
 /* Base 18 px; "letra grande" escala toda la interfaz porque todo va en rem. */

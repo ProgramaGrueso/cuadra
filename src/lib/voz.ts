@@ -64,35 +64,41 @@ function partir(texto: string) {
 
 export function parar() {
   if (!vozDisponible) return
+  turno++
   speechSynthesis.cancel()
   hablando = false
   avisar()
 }
 
+let turno = 0
+
 export function leer(texto: string) {
   if (!vozDisponible || !texto.trim()) return
   speechSynthesis.cancel()
+  const mio = ++turno
   const voz = elegirVoz()
   const partes = partir(texto)
-  partes.forEach((parte, i) => {
-    const u = new SpeechSynthesisUtterance(parte)
-    u.lang = voz?.lang ?? 'es-PE'
-    if (voz) u.voice = voz
-    u.rate = 0.9
-    if (i === partes.length - 1) {
-      u.onend = () => {
+  hablando = true
+  avisar()
+  // Chrome en Android descarta lo que se pide justo despues de cancel(): se espera un instante.
+  setTimeout(() => {
+    if (mio !== turno) return
+    speechSynthesis.resume()
+    partes.forEach((parte, i) => {
+      const u = new SpeechSynthesisUtterance(parte)
+      u.lang = voz?.lang ?? 'es-PE'
+      if (voz) u.voice = voz
+      u.rate = 0.9
+      const terminar = () => {
+        if (mio !== turno) return
         hablando = false
         avisar()
       }
-    }
-    u.onerror = () => {
-      hablando = false
-      avisar()
-    }
-    speechSynthesis.speak(u)
-  })
-  hablando = true
-  avisar()
+      if (i === partes.length - 1) u.onend = terminar
+      u.onerror = terminar
+      speechSynthesis.speak(u)
+    })
+  }, 150)
 }
 
 const LEGIBLES = 'h1, h2, h3, p, li, label, a, button, [role="status"], [role="alert"]'
@@ -131,10 +137,13 @@ export function reconocedor() {
 export function escucharFrase(): { promesa: Promise<string>; abort: () => void } {
   const R = reconocedor()
   if (!R) return { promesa: Promise.reject(new Error('Su teléfono no permite dictar. Puede escribir.')), abort: () => {} }
+  const sonaba = vozDisponible && (speechSynthesis.speaking || speechSynthesis.pending)
   parar()
   const r = new R()
   r.lang = 'es-PE'
   r.interimResults = false
+  let cortadoPorLaPersona = false
+  let cancelado = false
   const promesa = new Promise<string>((resolver, rechazar) => {
     let texto = ''
     r.onresult = (e) => {
@@ -142,16 +151,30 @@ export function escucharFrase(): { promesa: Promise<string>; abort: () => void }
     }
     r.onerror = (e) => {
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') rechazar(new Error('Permita el micrófono para hablar.'))
-      else if (e.error === 'no-speech') rechazar(new Error('No le escuché. Intente otra vez.'))
-      else if (e.error === 'aborted') rechazar(new Error(''))
-      else rechazar(new Error('No pude escuchar. Puede escribir.'))
+      else if (e.error === 'no-speech') rechazar(new Error('No le escuché. Toque Hablar otra vez.'))
+      else if (e.error === 'aborted') rechazar(new Error(cortadoPorLaPersona ? '' : 'Se cortó el micrófono. Toque Hablar otra vez.'))
+      else rechazar(new Error('No pude escuchar. Toque Hablar otra vez o escriba.'))
     }
-    r.onend = () => (texto ? resolver(texto) : rechazar(new Error('No le escuché. Intente otra vez.')))
-    try {
-      r.start()
-    } catch {
-      rechazar(new Error('No pude escuchar. Puede escribir.'))
-    }
+    r.onend = () => (texto ? resolver(texto) : rechazar(new Error(cortadoPorLaPersona ? '' : 'No le escuché. Toque Hablar otra vez.')))
+    // Si la voz estaba sonando, el micrófono de Android falla si arranca al mismo tiempo.
+    setTimeout(
+      () => {
+        if (cancelado) return rechazar(new Error(''))
+        try {
+          r.start()
+        } catch {
+          rechazar(new Error('No pude escuchar. Toque Hablar otra vez o escriba.'))
+        }
+      },
+      sonaba ? 400 : 0,
+    )
   })
-  return { promesa, abort: () => r.abort() }
+  return {
+    promesa,
+    abort: () => {
+      cortadoPorLaPersona = true
+      cancelado = true
+      r.abort()
+    },
+  }
 }

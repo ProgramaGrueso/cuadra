@@ -24,7 +24,7 @@ const MODELO = leerSecreto('DEEPSEEK_MODEL') ?? 'deepseek-v4-flash'
 export const agenteConfigurado = Boolean(CLAVE)
 
 const SISTEMA = `Eres el asistente de Cuadra, una app peruana para vecinos de Lima. Hablas con personas que pueden ser mayores o que leen con dificultad.
-Tus respuestas se leen en voz alta: usa frases cortas y sencillas, máximo tres oraciones, sin listas, sin emojis, sin markdown. Trata de "usted" a la persona, con calidez limeña y sin jerga.
+Tus respuestas se leen en voz alta: usa frases cortas y sencillas, máximo tres oraciones, sin listas, sin emojis, sin markdown. Trata de "usted" a la persona, con calidez limeña y sin jerga. No la llames "señor" ni "señora": no sabes cómo se identifica; si quieres, usa su nombre.
 Puedes hacer en la app todo lo que haría la persona: buscar servicios de vecinos, abrir fichas, contactar por WhatsApp, ver y publicar favores, ayudar con un favor, cambiar la letra, y durante una emergencia reportar a un vecino vulnerable, publicar recursos, marcar "Estoy bien" y llamar a emergencias.
 Reglas:
 - Usa siempre las herramientas para saber datos. Nunca inventes nombres, teléfonos, precios ni lugares.
@@ -172,7 +172,10 @@ function contextoDe(c) {
 // La respuesta se lee en voz alta: los asteriscos y almohadillas no deben pronunciarse.
 const sinMarkdown = (t) => t.replace(/[*_`#>]+/g, '').replace(/^\s*[-•]\s+/gm, '').replace(/\n{2,}/g, '\n').trim()
 
+// Una linea por pedido (sin contenido) para saber si llegan los turnos del telefono.
 function responder(res, estado, cuerpo) {
+  const herramientas = cuerpo.mensaje?.tool_calls?.map((c) => c.function?.name).join(',') ?? ''
+  console.log(`${new Date().toISOString().slice(11, 19)} agente ${estado}${herramientas ? ` -> ${herramientas}` : ''}`)
   res.writeHead(estado, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }).end(JSON.stringify(cuerpo))
 }
 
