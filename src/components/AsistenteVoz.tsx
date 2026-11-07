@@ -29,7 +29,10 @@ export function AsistenteVoz() {
   const escucha = useRef<{ abort: () => void } | null>(null)
   const fin = useRef<HTMLDivElement>(null)
 
-  useEffect(() => fin.current?.scrollIntoView({ block: 'end' }), [historial, pregunta, pensando])
+  // Con llaves: en Chrome reciente scrollIntoView devuelve una promesa y React la tomaria como limpieza.
+  useEffect(() => {
+    fin.current?.scrollIntoView({ block: 'end' })
+  }, [historial, pregunta, pensando])
   useEffect(() => () => escucha.current?.abort(), [])
 
   if (!activo) return null

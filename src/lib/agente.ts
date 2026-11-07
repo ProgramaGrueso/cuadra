@@ -45,6 +45,20 @@ const PANTALLAS: Record<string, string> = {
 const metros = (m: number) => (m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`)
 const sinTildes = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
+// "gasfitero" debe encontrar "Gasfitería": basta con que alguna palabra comparta una raíz de 5 letras.
+const palabras = (t: string) => sinTildes(t).split(/[^a-zñ]+/).filter((w) => w.length >= 5)
+const raizComun = (a: string, b: string) => {
+  let i = 0
+  while (i < a.length && a[i] === b[i]) i++
+  return i >= 5
+}
+const coincide = (buscado: string, texto: string) => {
+  const buscadas = palabras(buscado)
+  if (!buscadas.length) return sinTildes(texto).includes(sinTildes(buscado).trim())
+  const en = palabras(texto)
+  return buscadas.some((w) => en.some((x) => raizComun(w, x)))
+}
+
 type Args = Record<string, unknown>
 const texto = (v: unknown, n = 500) => (typeof v === 'string' ? v.trim().slice(0, n) : '')
 
@@ -66,12 +80,12 @@ async function ejecutar(nombre: string, a: Args, ctx: Contexto): Promise<unknown
     }
     case 'buscar_servicios': {
       const { data } = await leerPrestadores(ctx.centro, Boolean(a.solo_emergencia))
-      const buscado = sinTildes(texto(a.oficio))
+      const buscado = texto(a.oficio)
       let lista = data ?? []
       if (buscado) {
         const { data: oficios } = await leerOficios()
-        const ids = new Set((oficios ?? []).filter((o) => sinTildes(o.nombre).includes(buscado) || buscado.includes(sinTildes(o.nombre))).map((o) => o.id))
-        lista = lista.filter((p) => ids.has(p.oficio_id) || sinTildes(`${p.oficio} ${p.descripcion}`).includes(buscado))
+        const ids = new Set((oficios ?? []).filter((o) => coincide(buscado, o.nombre)).map((o) => o.id))
+        lista = lista.filter((p) => ids.has(p.oficio_id) || coincide(buscado, `${p.oficio} ${p.descripcion}`))
       }
       return lista
         .sort((x, y) => x.distancia_m - y.distancia_m)

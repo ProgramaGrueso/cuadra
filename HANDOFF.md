@@ -8,14 +8,17 @@
 
 ## Verificado
 - `npm run build` OK, `npm run db:test` sin fallas, `npm run db:reset` aplicado.
+- Asistente probado con la API real de DeepSeek en Chromium (Playwright, 390×844): registro → "Busco un gasfitero cerca" (4 resultados, ~2 s) → "Ábrame la ficha del más cercano" (navega a la ficha) → "Quiero pedir que me lleven al médico…" (aparece Sí/No; con No no se publica). Emergencia grave: responde 116/106 sin herramientas. Inyección en texto de vecinos: rechazada.
+- Notas DeepSeek: hay que mandar `thinking: {type: 'disabled'}` (si no, el segundo turno falla pidiendo `reasoning_content`). El servidor quita markdown antes de leer en voz alta.
 
 ## Pendiente
-- **Poner la clave de DeepSeek**: agregar `DEEPSEEK_API_KEY=...` en `supabase/.env` (ignorado por git). Opcional `DEEPSEEK_MODEL` (por defecto `deepseek-v4-flash`). Probar el asistente de punta a punta: aún no se probó con la API real.
+- Clave de DeepSeek ya está en `supabase/.env` (ignorado por git). Opcional `DEEPSEEK_MODEL` (por defecto `deepseek-v4-flash`).
+- Probar el micrófono (dictado) y la voz en un Android real: en el navegador sin cabeza solo se probó escribiendo.
 - Desarrollo del asistente: `npm run agente` en otra terminal junto a `npm run dev`. En la demo lo sirve la pasarela.
 - Probar Escuchar en un Android real (voz es-PE/es-419, y si funciona sin señal).
 - Recorrer el flujo completo en el celular con `scripts/demo.sh up`.
 - Push y PR a `main`.
-- Decidir ideas de diferenciación (ver la conversación): logo/identidad, agente de voz, guion de demo.
+- Guion de demo y material del pitch (imágenes/video con ComfyUI).
 
 ## Comandos
 - `npm run dev` · `npm run db:reset` · `npm run db:test` · `scripts/demo.sh up|down`
