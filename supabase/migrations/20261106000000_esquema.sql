@@ -113,7 +113,7 @@ begin
     raise exception 'No puedes darte Visto Bueno a ti mismo' using errcode = 'P0001';
   end if;
   if v_vecino.geom is null then
-    raise exception 'Necesitamos tu ubicacion para validar el Visto Bueno' using errcode = 'P0001';
+    raise exception 'Necesitamos tu ubicación para validar el Visto Bueno' using errcode = 'P0001';
   end if;
   select coalesce((select radio_m from public.zonas where id = v_prestador.zona_id), 2000)
     into v_radio;
@@ -407,7 +407,7 @@ begin
     where id = p_favor_id and estado = 'abierto' and autor_id <> auth.uid() and auth.uid() is not null
     returning * into v;
   if v.id is null then
-    raise exception 'Este favor ya no esta disponible' using errcode = 'P0001';
+    raise exception 'Este favor ya no está disponible' using errcode = 'P0001';
   end if;
   return v;
 end $$;
@@ -423,7 +423,7 @@ begin
         or (tipo = 'ofrezco' and ayudante_id = auth.uid()))
     returning * into v;
   if v.id is null then
-    raise exception 'Solo quien recibio el favor puede confirmarlo' using errcode = 'P0001';
+    raise exception 'Solo quien recibió el favor puede confirmarlo' using errcode = 'P0001';
   end if;
   return v;
 end $$;
@@ -474,7 +474,7 @@ create function public.crear_reporte(
 language plpgsql security definer set search_path = '' as $$
 begin
   if auth.uid() is null then
-    raise exception 'Sesion requerida' using errcode = '42501';
+    raise exception 'Sesión requerida' using errcode = '42501';
   end if;
   insert into public.reportes_vulnerables
     (id, emergencia_id, tipo, descripcion, lat_aprox, lng_aprox, reportado_por)
@@ -522,7 +522,7 @@ language sql stable security definer set search_path = '' as $$
 $$;
 
 -- Va despues de crear las funciones: Postgres y Supabase dan EXECUTE a toda
--- funcion nueva. Lo mismo se cierra por defecto para las migraciones futuras.
+-- funcion nueva. El default para las siguientes se cierra en la migracion 000100.
 revoke execute on all functions in schema public from public, anon, authenticated;
 alter default privileges in schema public revoke execute on functions from public, anon, authenticated;
 alter default privileges in schema public revoke all on tables from anon, authenticated;

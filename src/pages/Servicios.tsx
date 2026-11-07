@@ -1,8 +1,12 @@
 import { BadgeCheck, List, Map as MapaIcono, RefreshCw } from 'lucide-react'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { DirectorioEmergencia } from '../components/DirectorioEmergencia'
 import { IconoOficio } from '../components/Iconos'
+import { leerOficios, leerPrestadores } from '../lib/datos'
+import { useEmergencia } from '../lib/emergencia'
+import { useEnLinea } from '../lib/offline'
 import { usePerfil } from '../lib/sesion'
-import { supabase } from '../lib/supabase'
 import type { Oficio, PrestadorCercano } from '../lib/types'
 import { formatearDistancia } from '../lib/ubicacion'
 
@@ -18,9 +22,10 @@ type Resultado =
   | { fase: 'listo'; prestadores: PrestadorCercano[] }
 
 export function Servicios() {
-  const { perfil, zonas } = usePerfil()
+  const { perfil, zonas, centro } = usePerfil()
   const zona = zonas.find((z) => z.id === perfil.zona_id)
-  const centro = { lat: perfil.lat ?? zona?.lat ?? 0, lng: perfil.lng ?? zona?.lng ?? 0 }
+  const enEmergencia = useEmergencia() !== null
+  const enLinea = useEnLinea()
 
   const [vista, setVista] = useState<'lista' | 'mapa'>('lista')
   const [radio, setRadio] = useState(2000)
@@ -30,43 +35,47 @@ export function Servicios() {
   const [intento, setIntento] = useState(0)
 
   useEffect(() => {
-    supabase
-      .from('oficios')
-      .select('id, nombre, icono')
-      .order('nombre')
-      .returns<Oficio[]>()
-      .then(({ data }) => setOficios(data ?? []))
-  }, [])
+    void leerOficios().then(({ data }) => setOficios(data ?? []))
+  }, [enLinea])
+
+  // En emergencia solo cuentan los oficios criticos, tambien si ya habia otro elegido.
+  const oficiosVisibles = enEmergencia ? oficios.filter((o) => o.es_critico_emergencia) : oficios
+  const oficioFiltrado = oficioId !== null && oficiosVisibles.some((o) => o.id === oficioId) ? oficioId : null
 
   useEffect(() => {
     let vigente = true
     setResultado({ fase: 'cargando' })
-    supabase
-      .rpc('prestadores_cercanos', {
-        p_lat: centro.lat,
-        p_lng: centro.lng,
-        p_radio_m: radio,
-        p_oficio_id: oficioId,
-      })
-      .then(({ data, error }) => {
-        if (!vigente) return
-        setResultado(error ? { fase: 'error' } : { fase: 'listo', prestadores: (data ?? []) as PrestadorCercano[] })
-      })
+    void leerPrestadores(centro, enEmergencia).then(({ data, error }) => {
+      if (vigente) setResultado(error ? { fase: 'error' } : { fase: 'listo', prestadores: data ?? [] })
+    })
     return () => {
       vigente = false
     }
-  }, [centro.lat, centro.lng, radio, oficioId, intento])
+  }, [centro, enEmergencia, intento, enLinea])
+
+  const visibles = useMemo(
+    () =>
+      resultado.fase === 'listo'
+        ? resultado.prestadores.filter((p) => p.distancia_m <= radio && (oficioFiltrado === null || p.oficio_id === oficioFiltrado))
+        : [],
+    [resultado, radio, oficioFiltrado],
+  )
 
   return (
     <div className="flex flex-col gap-3 px-4 pt-4">
-      <h1 className="text-2xl font-bold">Servicios en {zona?.nombre ?? 'tu zona'}</h1>
+      <h1 className="text-2xl font-bold">
+        {enEmergencia ? 'Quién puede ayudar' : `Servicios en ${zona?.nombre ?? 'tu zona'}`}
+      </h1>
+
+      {/* Los numeros de emergencia tambien se ven siempre sin red. */}
+      {(enEmergencia || !enLinea) && <DirectorioEmergencia />}
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="group" aria-label="Filtrar por oficio">
-        <Chip activo={oficioId === null} onClick={() => setOficioId(null)}>
+        <Chip activo={oficioFiltrado === null} onClick={() => setOficioId(null)}>
           Todos
         </Chip>
-        {oficios.map((o) => (
-          <Chip key={o.id} activo={oficioId === o.id} onClick={() => setOficioId(o.id)}>
+        {oficiosVisibles.map((o) => (
+          <Chip key={o.id} activo={oficioFiltrado === o.id} onClick={() => setOficioId(o.id)}>
             <IconoOficio icono={o.icono} size={20} /> {o.nombre}
           </Chip>
         ))}
@@ -116,25 +125,25 @@ export function Servicios() {
         </div>
       )}
 
-      {resultado.fase === 'listo' && resultado.prestadores.length === 0 && (
+      {resultado.fase === 'listo' && visibles.length === 0 && (
         <p className="py-8 text-center text-suave">
-          No hay nadie con ese oficio a menos de {formatearDistancia(radio)}. Prueba con una distancia mayor.
+          No hay nadie {enEmergencia ? 'disponible para emergencias' : 'con ese oficio'} a menos de {formatearDistancia(radio)}. Prueba con una distancia mayor.
         </p>
       )}
 
-      {resultado.fase === 'listo' && resultado.prestadores.length > 0 && (
+      {resultado.fase === 'listo' && visibles.length > 0 && (
         <>
           <p role="status" className="text-suave">
-            {resultado.prestadores.length} {resultado.prestadores.length === 1 ? 'vecino' : 'vecinos'}, los más
+            {visibles.length} {visibles.length === 1 ? 'vecino' : 'vecinos'}, los más
             recomendados primero
           </p>
           {vista === 'mapa' ? (
             <Suspense fallback={<p className="py-8 text-center text-suave">Cargando mapa…</p>}>
-              <MapaPrestadores centro={centro} radioM={radio} prestadores={resultado.prestadores} />
+              <MapaPrestadores centro={centro} radioM={radio} prestadores={visibles} />
             </Suspense>
           ) : (
             <ul className="flex flex-col gap-3">
-              {resultado.prestadores.map((p) => (
+              {visibles.map((p) => (
                 <TarjetaPrestador key={p.id} prestador={p} />
               ))}
             </ul>
@@ -147,30 +156,32 @@ export function Servicios() {
 
 function TarjetaPrestador({ prestador: p }: { prestador: PrestadorCercano }) {
   return (
-    <li className="rounded-xl border border-borde bg-superficie p-3">
-      <div className="flex items-start gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-marca-suave text-marca">
-          <IconoOficio icono={p.icono} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-lg leading-tight font-bold">{p.nombre}</h2>
-          <p className="text-suave">
-            {p.oficio} · {formatearDistancia(p.distancia_m)}
-          </p>
+    <li>
+      <Link to={`/prestador/${p.id}`} className="block rounded-xl border border-borde bg-superficie p-3">
+        <div className="flex items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-marca-suave text-marca">
+            <IconoOficio icono={p.icono} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg leading-tight font-bold">{p.nombre}</h2>
+            <p className="text-suave">
+              {p.oficio} · {formatearDistancia(p.distancia_m)}
+            </p>
+          </div>
         </div>
-      </div>
-      <p className="mt-2">{p.descripcion}</p>
-      {p.tarifa_ref && <p className="mt-1 text-suave">{p.tarifa_ref}</p>}
-      <p
-        className={`mt-2 flex items-center gap-1.5 rounded-lg px-2 py-1 font-bold ${
-          p.sello ? 'bg-sello-suave text-sello' : 'text-suave'
-        }`}
-      >
-        {p.sello && <BadgeCheck aria-hidden size={20} className="shrink-0" />}
-        {p.vistos_buenos === 0
-          ? 'Aún sin Vistos Buenos'
-          : `${p.vistos_buenos} ${p.vistos_buenos === 1 ? 'vecino de tu zona le da' : 'vecinos de tu zona le dan'} su Visto Bueno`}
-      </p>
+        <p className="mt-2">{p.descripcion}</p>
+        {p.tarifa_ref && <p className="mt-1 text-suave">{p.tarifa_ref}</p>}
+        <p
+          className={`mt-2 flex items-center gap-1.5 rounded-lg px-2 py-1 font-bold ${
+            p.sello ? 'bg-sello-suave text-sello' : 'text-suave'
+          }`}
+        >
+          {p.sello && <BadgeCheck aria-hidden size={20} className="shrink-0" />}
+          {p.vistos_buenos === 0
+            ? 'Aún sin Vistos Buenos'
+            : `${p.vistos_buenos} ${p.vistos_buenos === 1 ? 'vecino de tu zona le da' : 'vecinos de tu zona le dan'} su Visto Bueno`}
+        </p>
+      </Link>
     </li>
   )
 }

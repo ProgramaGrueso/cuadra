@@ -72,6 +72,9 @@ body {
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
 }
 .marcador--sello { background: var(--sello); }
+.marcador--pendiente { background: var(--peligro); }
+.marcador--en-atencion { background: var(--sello); }
+.marcador--atendido { background: #6b7570; }
 .marcador--yo {
   width: 20px;
   height: 20px;

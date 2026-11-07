@@ -26,6 +26,9 @@ begin
   raise notice 'ok  %', p_que;
 end $$;
 
+grant execute on function pg_temp.como(uuid), pg_temp.debe_fallar(text, text), pg_temp.comprobar(boolean, text)
+  to authenticated, anon;
+
 -- Vecino A en Lince, vecino B muy lejos, voluntario V verificado (como superusuario).
 insert into public.users (id, nombre, telefono, lat, lng, zona_id) values
   ('aaaaaaaa-0000-4000-8000-000000000001', 'Prueba A', '51900000001', -12.0845, -77.034, 1),
@@ -122,6 +125,59 @@ select pg_temp.comprobar(
 select pg_temp.comprobar(
   (select favores_hechos = 1 from public.perfiles_publicos where id = 'cccccccc-0000-4000-8000-000000000003'), 'el contador suma al ayudante');
 
+-- Lecturas nuevas: ficha, comentarios y muro
+select pg_temp.como('bbbbbbbb-0000-4000-8000-000000000002');
+select pg_temp.comprobar(
+  (select public.contacto_favor('dddddddd-0000-4000-8000-000000000004')) is null,
+  'quien no tomo el favor no obtiene el telefono del autor');
+select pg_temp.comprobar(
+  not exists (select 1 from public.favores_cercanos(-12.0845, -77.034) where id = 'dddddddd-0000-4000-8000-000000000004'),
+  'un favor cumplido ajeno no aparece en el muro');
+select pg_temp.comprobar(
+  (select nombre is not null and not es_mio and not mi_visto_bueno
+     from public.ficha_prestador('00000000-0000-4000-8002-000000000001', -12.0845, -77.034)),
+  'la ficha se lee sin abrir users');
+select pg_temp.debe_fallar(
+  $q$select telefono from public.ficha_prestador('00000000-0000-4000-8002-000000000001', -12.0845, -77.034)$q$,
+  'la ficha no expone telefono');
+select pg_temp.debe_fallar(
+  $q$select telefono from public.favores_cercanos(-12.0845, -77.034)$q$, 'el muro no expone telefono');
+
+select pg_temp.como('cccccccc-0000-4000-8000-000000000003');
+select pg_temp.comprobar(
+  (select public.contacto_favor('dddddddd-0000-4000-8000-000000000004')) = '51900000001',
+  'quien tomo el favor obtiene el telefono del autor');
+select pg_temp.comprobar(
+  exists (select 1 from public.favores_cercanos(-12.0845, -77.034) where id = 'dddddddd-0000-4000-8000-000000000004'),
+  'un participante sigue viendo su favor cumplido');
+
+-- Recursos: el cruce solo entrega el telefono a la contraparte de lo que publique
+select pg_temp.como('aaaaaaaa-0000-4000-8000-000000000001');
+insert into public.recursos_criticos (id, emergencia_id, tipo, accion, cantidad, lat, lng, user_id)
+  select 'eeeeeeee-0000-4000-8000-000000000005', id, 'agua', 'tengo', 5, -12.0845, -77.034, auth.uid()
+  from public.emergencias where es_simulacro limit 1;
+select pg_temp.como('cccccccc-0000-4000-8000-000000000003');
+insert into public.recursos_criticos (id, emergencia_id, tipo, accion, cantidad, lat, lng, user_id)
+  select 'eeeeeeee-0000-4000-8000-000000000006', id, 'agua', 'necesito', 2, -12.0845, -77.034, auth.uid()
+  from public.emergencias where es_simulacro limit 1;
+select pg_temp.comprobar(
+  (select otro_telefono = '51900000001' from public.cruces_de_recursos((select id from public.emergencias where es_simulacro limit 1))
+    where otro_id = 'eeeeeeee-0000-4000-8000-000000000005'),
+  'el cruce da el telefono a quien necesita ese recurso');
+select pg_temp.como('bbbbbbbb-0000-4000-8000-000000000002');
+select pg_temp.comprobar(
+  not exists (select 1 from public.cruces_de_recursos((select id from public.emergencias where es_simulacro limit 1))),
+  'sin publicar nada no se reciben telefonos por el cruce');
+select pg_temp.debe_fallar(
+  $q$select telefono from public.recursos_cercanos((select id from public.emergencias where es_simulacro limit 1), 0, 0)$q$,
+  'la lista de recursos no expone telefono');
+
+-- Estoy bien: repetirlo no duplica y no vale para una emergencia cerrada
+select pg_temp.como('bbbbbbbb-0000-4000-8000-000000000002');
+select pg_temp.debe_fallar(
+  $q$select public.marcar_checkin('00000000-0000-4000-8005-ffffffffffff')$q$,
+  'marcar estoy bien en una emergencia inexistente');
+
 -- Sin sesion
 reset role;
 set local role anon;
@@ -130,6 +186,12 @@ select pg_temp.debe_fallar('select * from public.prestadores_cercanos(-12.08, -7
 select pg_temp.debe_fallar($q$select public.contacto_prestador('00000000-0000-4000-8002-000000000001')$q$, 'anon pide un telefono');
 select pg_temp.debe_fallar('select public.activar_emergencia(1::smallint)', 'anon activa emergencia');
 select pg_temp.debe_fallar('select public.conteo_checkins(gen_random_uuid())', 'anon cuenta checkins');
+select pg_temp.debe_fallar($q$select * from public.ficha_prestador('00000000-0000-4000-8002-000000000001', 0, 0)$q$, 'anon lee una ficha');
+select pg_temp.debe_fallar($q$select * from public.comentarios_prestador('00000000-0000-4000-8002-000000000001')$q$, 'anon lee comentarios');
+select pg_temp.debe_fallar('select * from public.favores_cercanos(0, 0)', 'anon lee el muro');
+select pg_temp.debe_fallar('select * from public.recursos_cercanos(gen_random_uuid(), 0, 0)', 'anon lee recursos');
+select pg_temp.debe_fallar('select * from public.cruces_de_recursos(gen_random_uuid())', 'anon lee cruces');
+select pg_temp.debe_fallar('select public.marcar_checkin(gen_random_uuid())', 'anon marca estoy bien');
 reset role;
 
 rollback;

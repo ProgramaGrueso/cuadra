@@ -2,11 +2,15 @@ import {
   BadgeCheck,
   BookOpen,
   BrickWall,
+  Car,
   Dog,
   Hammer,
+  HandHeart,
   HeartPulse,
   KeyRound,
   Laptop,
+  Lightbulb,
+  Package,
   Scissors,
   Wrench,
   Zap,
@@ -25,6 +29,10 @@ const ICONOS: Record<string, LucideIcon> = {
   book: BookOpen,
   scissors: Scissors,
   laptop: Laptop,
+  'hand-heart': HandHeart,
+  package: Package,
+  lightbulb: Lightbulb,
+  car: Car,
 }
 
 export function IconoOficio({ icono, size = 22 }: { icono: string; size?: number }) {

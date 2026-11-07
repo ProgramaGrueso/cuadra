@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
+import { InterruptorEmergencia } from '../components/InterruptorEmergencia'
 import { SelectorUbicacion, type UbicacionElegida } from '../components/SelectorUbicacion'
 import { usePerfil } from '../lib/sesion'
 import { normalizarTelefono } from '../lib/ubicacion'
@@ -36,6 +38,12 @@ export function MiPerfil() {
   return (
     <div className="flex flex-col gap-6 px-4 pt-5">
       <h1 className="text-2xl font-bold">Mi perfil</h1>
+
+      <InterruptorEmergencia />
+
+      <Link to="/tutorial" className="flex min-h-12 items-center justify-center rounded-xl border-2 border-marca bg-superficie px-4 font-bold text-marca">
+        Ver el tutorial
+      </Link>
 
       <form onSubmit={enviar} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 font-bold">

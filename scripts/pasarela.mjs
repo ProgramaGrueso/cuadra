@@ -43,6 +43,26 @@ function autorizada(req, ruta, consulta) {
   return !token.startsWith('sb_')
 }
 
+// El limite de Supabase Auth no actua sin GOTRUE_RATE_LIMIT_HEADER, que la CLI no expone.
+// Por eso se limita aqui. Holgado porque el publico de la demo puede compartir un mismo wifi.
+const ALTAS_POR_HORA = 40
+const HORA_MS = 3_600_000
+const altas = new Map()
+
+function altaPermitida(req) {
+  // Cloudflare fija cf-connecting-ip, y la pasarela solo escucha en 127.0.0.1 detras del tunel.
+  const ip = req.headers['cf-connecting-ip'] ?? req.socket.remoteAddress
+  const ahora = Date.now()
+  const registro = altas.get(ip)
+  if (!registro || ahora >= registro.fin) {
+    if (altas.size >= 10_000) altas.clear()
+    altas.set(ip, { cuenta: 1, fin: ahora + HORA_MS })
+    return true
+  }
+  registro.cuenta += 1
+  return registro.cuenta <= ALTAS_POR_HORA
+}
+
 function cabecerasHaciaApi(req) {
   const cabeceras = { ...req.headers, host: `${API_HOST}:${API_PUERTO}` }
   const ip = req.headers['cf-connecting-ip']
@@ -96,6 +116,10 @@ const servidor = http.createServer((req, res) => {
   }
   if (!autorizada(req, pathname, searchParams)) {
     res.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"no permitido"}')
+    return
+  }
+  if (req.method === 'POST' && pathname === '/auth/v1/signup' && !altaPermitida(req)) {
+    res.writeHead(429, { 'content-type': 'application/json', 'retry-after': '3600' }).end('{"error":"demasiados registros"}')
     return
   }
   const salida = http.request(
