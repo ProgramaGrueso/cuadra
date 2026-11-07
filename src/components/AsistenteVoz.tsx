@@ -1,11 +1,11 @@
-import { Bot, Mic, Send, Square, Volume2, X } from 'lucide-react'
+import { Bot, Keyboard, Mic, Send, Square, Volume2, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { conversar, type Mensaje } from '../lib/agente'
 import { useEmergencia } from '../lib/emergencia'
 import { useEnLinea } from '../lib/offline'
 import { usePerfil } from '../lib/sesion'
-import { escucharFrase, leer, parar, reconocedor, textoDePantalla, useEscucharActivo, useHablando, vozDisponible } from '../lib/voz'
+import { ErrorEscucha, escucharFrase, leer, MENSAJE_VOZ, parar, PISTA_TECLADO, reconocedor, textoDePantalla, useEscucharActivo, useHablando, useProblemaVoz, vozDisponible } from '../lib/voz'
 
 const SALUDO = '¿En qué le ayudo? Por ejemplo: "Busco un gasfitero", "Quiero pedir que me lleven al médico" o "Léame lo que dice aquí".'
 
@@ -28,6 +28,9 @@ export function AsistenteVoz() {
   const [pregunta, setPregunta] = useState<{ texto: string; responder: (si: boolean) => void } | null>(null)
   const escucha = useRef<{ abort: () => void } | null>(null)
   const fin = useRef<HTMLDivElement>(null)
+  const campo = useRef<HTMLInputElement>(null)
+  const [pista, setPista] = useState(false)
+  const problemaVoz = useProblemaVoz()
 
   // Con llaves: en Chrome reciente scrollIntoView devuelve una promesa y React la tomaria como limpieza.
   useEffect(() => {
@@ -110,7 +113,14 @@ export function AsistenteVoz() {
     setEscuchando(true)
     e.promesa
       .then((texto) => void enviar(texto))
-      .catch((error: Error) => error.message && setAviso(error.message))
+      .catch((error: Error) => {
+        if (error.message) setAviso(error.message)
+        // Si el microfono del navegador falla, el del teclado casi siempre funciona.
+        if (error instanceof ErrorEscucha && error.pista) {
+          setPista(true)
+          campo.current?.focus()
+        }
+      })
       .finally(() => setEscuchando(false))
   }
 
@@ -190,6 +200,13 @@ export function AsistenteVoz() {
                 {aviso}
               </p>
             )}
+            {enLinea && (pista || !puedeHablar) && (
+              <p className="flex items-start gap-2 rounded-xl bg-marca-suave p-3 font-bold">
+                <Keyboard aria-hidden size={24} className="shrink-0" />
+                {puedeHablar ? PISTA_TECLADO : 'Para hablar, toque el cuadro de texto de abajo y luego el micrófono de su teclado.'}
+              </p>
+            )}
+            {problemaVoz && <p className="rounded-xl bg-superficie p-3 text-suave">{MENSAJE_VOZ[problemaVoz]}</p>}
 
             {enLinea ? (
               <>
@@ -213,6 +230,8 @@ export function AsistenteVoz() {
                   </label>
                   <input
                     id="asistente-texto"
+                    ref={campo}
+                    enterKeyHint="send"
                     value={escrito}
                     onChange={(e) => setEscrito(e.target.value)}
                     placeholder="O escríbalo aquí"
