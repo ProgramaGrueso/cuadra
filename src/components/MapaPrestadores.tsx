@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { Link } from 'react-router-dom'
 import { formatearDistancia, type Punto } from '../lib/ubicacion'
 import type { PrestadorCercano } from '../lib/types'
 
@@ -31,6 +32,8 @@ export function MapaPrestadores({ centro, radioM, prestadores }: Props) {
     >
       <TileLayer
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          crossOrigin="anonymous"
+          referrerPolicy="strict-origin-when-cross-origin"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         maxZoom={19}
       />
@@ -53,6 +56,8 @@ export function MapaPrestadores({ centro, radioM, prestadores }: Props) {
             {p.oficio} · {formatearDistancia(p.distancia_m)}
             <br />
             {p.vistos_buenos} {p.vistos_buenos === 1 ? 'vecino le da' : 'vecinos le dan'} su Visto Bueno
+            <br />
+            <Link to={`/prestador/${p.id}`}>Ver ficha</Link>
           </Popup>
         </Marker>
       ))}

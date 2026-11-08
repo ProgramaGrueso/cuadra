@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "db:seed:generar": "node scripts/generate-seed.mjs",
     "db:reset": "npm run db:seed:generar && supabase db reset",
-    "db:test": "docker exec -i supabase_db_cuadra psql -U postgres -d postgres -q -v ON_ERROR_STOP=1 < supabase/tests/privacidad.sql"
+    "db:test": "docker exec -i supabase_db_cuadra psql -U postgres -d postgres -q -v ON_ERROR_STOP=1 < supabase/tests/privacidad.sql",
+    "agente": "node scripts/agente-dev.mjs"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "^5.3.0",

@@ -3,6 +3,7 @@
 #   scripts/demo.sh up              base + pasarela + tunel de Cloudflare (imprime la URL)
 #   scripts/demo.sh up --sin-tunel  igual, pero solo en http://127.0.0.1:4173
 #   scripts/demo.sh down            apaga todo y lista lo que siga escuchando
+#   scripts/demo.sh verificar NOMBRE  marca como voluntario verificado a quien se registro con ese nombre
 set -euo pipefail
 
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -21,6 +22,16 @@ asegurar_secreto() {
   fi
 }
 
+# Los vecinos ficticios del seed no tienen telefono; para probar Contactar usan el del
+# equipo, que vive solo en supabase/.env. Los ids 8001 son exclusivos del seed.
+aplicar_whatsapp_demo() {
+  local numero
+  numero="$(sed -n 's/^DEMO_WHATSAPP=\([0-9]\{9,15\}\)$/\1/p' "$SECRETOS")"
+  [[ -n "$numero" ]] || return 0
+  docker exec -i supabase_db_cuadra psql -U postgres -d postgres -q -v ON_ERROR_STOP=1 \
+    -c "update public.users set telefono = '$numero' where id::text like '00000000-0000-4000-8001-%';" >/dev/null
+}
+
 parar() {
   local archivo="$ESTADO/$1.pid"
   [[ -f "$archivo" ]] || return 0
@@ -35,12 +46,7 @@ en_segundo_plano() {
   echo $! >"$ESTADO/$nombre.pid"
 }
 
-up() {
-  asegurar_secreto
-  parar tunel
-  parar pasarela
-  npx supabase start >/dev/null
-
+compilar_y_servir() {
   local anon
   anon="$(valor_status ANON_KEY)"
   [[ -n "$anon" ]] || { echo 'No se pudo leer la clave anon' >&2; exit 1; }
@@ -54,6 +60,26 @@ up() {
     sleep 0.5
   done
   curl -fsS -o /dev/null "http://127.0.0.1:$PUERTO/" || { echo 'La pasarela no arranco' >&2; exit 1; }
+}
+
+# Tras cambiar codigo: recompila y reinicia la pasarela sin tocar el tunel (el link no cambia).
+recargar() {
+  parar pasarela
+  for _ in {1..25}; do ss -ltn | grep -qE ":$PUERTO\b" || break; sleep 0.2; done
+  compilar_y_servir
+  local url
+  url="$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' "$ESTADO/tunel.log" 2>/dev/null | tail -1)"
+  echo "Recargada. ${url:+Mismo link: $url}"
+}
+
+up() {
+  asegurar_secreto
+  parar tunel
+  parar pasarela
+  npx supabase start >/dev/null
+  aplicar_whatsapp_demo
+
+  compilar_y_servir
 
   if [[ "${1:-}" == '--sin-tunel' ]]; then
     echo "Demo local: http://127.0.0.1:$PUERTO"
@@ -78,8 +104,16 @@ down() {
   ss -ltnp | grep -E ":($PUERTO|54321|54322|54323)\b" || echo 'Puertos de la demo libres'
 }
 
+verificar() {
+  [[ -n "${1:-}" ]] || { echo 'Uso: scripts/demo.sh verificar NOMBRE' >&2; exit 2; }
+  docker exec -i supabase_db_cuadra psql -U postgres -d postgres -At -v ON_ERROR_STOP=1 -v nombre="$1" \
+    <<<"update public.users set verificado = true where nombre = :'nombre' returning nombre;"
+}
+
 case "${1:-}" in
   up) shift; up "$@" ;;
   down) down ;;
-  *) echo 'Uso: scripts/demo.sh up [--sin-tunel] | down' >&2; exit 2 ;;
+  recargar) recargar ;;
+  verificar) shift; verificar "$@" ;;
+  *) echo 'Uso: scripts/demo.sh up [--sin-tunel] | recargar | down | verificar NOMBRE' >&2; exit 2 ;;
 esac

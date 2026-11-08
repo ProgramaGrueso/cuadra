@@ -293,14 +293,21 @@ insert into public.favores (id, tipo, categoria_id, texto, estado, lat, lng, aut
   ('00000000-0000-4000-8004-000000000015', 'ofrezco', 'ayuda_temporal', 'Hice las compras a una vecina durante su reposo.', 'cumplido', -12.09007, -77.03559, '00000000-0000-4000-8001-000000000040', '00000000-0000-4000-8001-000000000046');
 
 insert into public.grupos_apoyo (nombre, tipo, telefono, direccion, lat, lng, fuente, zona_id) values
-  ('Compañía de Bomberos Lima N.º 4', 'bomberos', '014716442', 'Jr. Manuel Candamo, Lince', -12.0819004, -77.0321975, 'OpenStreetMap, consultado 2026-11-06; teléfono: Búsqueda web sobre gob.pe/munilince, 2026-11-06; confirmar antes de la demo', 1),
-  ('Comisaría PNP de Lince', 'comisaria', '014712606', null, -12.0833274, -77.0271535, 'OpenStreetMap, consultado 2026-11-06; teléfono: Búsqueda web sobre gob.pe/munilince, 2026-11-06; confirmar antes de la demo', 1),
-  ('Serenazgo de Lince (central)', 'serenazgo', '016191802', 'Municipalidad: Av. Juan Pardo de Zela 480, Lince', -12.0833313, -77.0318518, 'Búsqueda web sobre gob.pe/munilince, 2026-11-06; confirmar antes de la demo; ubicación de la municipalidad', 1),
-  ('Municipalidad de Lince', 'municipio', '016191818', 'Av. Juan Pardo de Zela 480, Lince', -12.0833313, -77.0318518, 'OpenStreetMap, consultado 2026-11-06', 1),
-  ('Centro de Salud de Lince', 'salud', null, 'Jr. Manuel Candamo, Lince', -12.0818643, -77.0319682, 'OpenStreetMap, consultado 2026-11-06', 1),
-  ('SISOL Salud Lince', 'salud', '014726755', 'Av. Gral. César Canevaro 550, Lince', -12.0840314, -77.0395119, 'OpenStreetMap, consultado 2026-11-06', 1),
-  ('Policlínico Municipal de Lince', 'salud', null, 'Av. Militar, Lince', -12.0838266, -77.0316762, 'OpenStreetMap, consultado 2026-11-06', 1),
-  ('Parroquia Santa Rosa de Lima', 'parroquia', null, null, -12.0865479, -77.0389875, 'OpenStreetMap, consultado 2026-11-06', 1);
+  ('Compañía de Bomberos Lima N.º 4', 'bomberos', '014716442', 'Jr. Manuel Candamo, Lince', -12.0819004, -77.0321975, 'Ubicación: OpenStreetMap, consultado 2026-11-06. Teléfono: Municipalidad de Lince, gob.pe/institucion/munilince/contacto-y-numeros-de-emergencias, vía buscador, 2026-11-06', 1),
+  ('Comisaría PNP de Lince', 'comisaria', '014712606', null, -12.0833274, -77.0271535, 'Ubicación: OpenStreetMap, consultado 2026-11-06. Teléfono: Municipalidad de Lince, gob.pe/institucion/munilince/contacto-y-numeros-de-emergencias, vía buscador, 2026-11-06', 1),
+  ('Serenazgo de Lince (central)', 'serenazgo', '016191802', null, -12.0833313, -77.0318518, 'Municipalidad de Lince, gob.pe/institucion/munilince/contacto-y-numeros-de-emergencias, vía buscador, 2026-11-06', 1),
+  ('Municipalidad de Lince', 'municipio', '016191818', 'Av. Juan Pardo de Zela 480, Lince', -12.0833313, -77.0318518, 'Ubicación: OpenStreetMap, consultado 2026-11-06. Datos: Municipalidad de Lince, gob.pe/institucion/munilince/contacto-y-numeros-de-emergencias, vía buscador, 2026-11-06', 1),
+  ('Centro de Salud de Lince', 'salud', null, 'Jr. Manuel Candamo 495, Lince', -12.0818643, -77.0319682, 'Ubicación: OpenStreetMap, consultado 2026-11-06. Dirección: DIGEMID, puntos de acopio de Lima, 01-2026', 1),
+  ('SISOL Salud Lince', 'salud', null, 'Av. Gral. César Canevaro 550, Lince', -12.0840314, -77.0395119, 'Establecimiento: El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación y dirección: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Clínica Javier Prado', 'salud', null, 'Av. Javier Prado Este 499', -12.0911, -77.02845, 'Establecimiento: El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación y dirección: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Parroquia Santa Rosa de Lima', 'parroquia', '014700005', 'Av. Almirante Guisse 2150, Lince', -12.0865479, -77.0389875, 'Ubicación: OpenStreetMap, consultado 2026-11-06. Datos: gob.pe/14180-parroquias-del-distrito-de-lince, vía buscador, 2026-11-06', 1);
+
+insert into public.lugares_emergencia (nombre, tipo, direccion, detalle, lat, lng, fuente, zona_id) values
+  ('Parque Castilla', 'punto_reunion', 'Lince', 'Sugerido por el equipo Cuadra, según la nota de El Peruano.', -12.08859, -77.04138, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Parque Pedro Ruiz Gallo', 'punto_reunion', 'Lince', 'Sugerido por el equipo Cuadra, según la nota de El Peruano. En su sótano funciona el COED del distrito.', -12.0825, -77.03108, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Parque Santos Dumont', 'punto_reunion', 'Lince', 'Sugerido por el equipo Cuadra, según la nota de El Peruano.', -12.08724, -77.02705, 'El Peruano, 2026-07-02, elperuano.pe/noticia/299347. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('Campo de Marte', 'punto_reunion', 'Jesús María', 'Sugerido por el equipo Cuadra por ser un espacio abierto amplio. No es un punto oficial.', -12.0681181, -77.0418936, 'Elegido por el equipo Cuadra, 2026-11-07. Ubicación: OpenStreetMap, consultado 2026-11-06', 1),
+  ('plazaVea Risso', 'abastecimiento', 'Av. Arequipa 2250, Lince', 'Supermercado. En una emergencia puede estar cerrado o sin stock.', -12.08667, -77.03483, 'Dirección: plazavea.com.pe/recojo-en-tienda, vía buscador, 2026-11-06. Ubicación: OpenStreetMap, consultado 2026-11-06', 1);
 
 insert into public.emergencias (id, zona_id, activa, es_simulacro, mensaje) values
   ('00000000-0000-4000-8005-000000000001', 1, false, true, 'Simulacro: sismo en Lince. Reporta a quien necesite ayuda.');
