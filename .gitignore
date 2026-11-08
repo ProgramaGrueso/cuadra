@@ -29,5 +29,4 @@ dist-ssr
 !.env.example
 .vercel
 supabase/.temp
-.playwright-mcp
 .demo

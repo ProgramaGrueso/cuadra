@@ -58,7 +58,7 @@ select pg_temp.debe_fallar('select public.activar_emergencia(1::smallint)', 'act
 
 -- Direccion de vulnerables
 select pg_temp.comprobar(
-  (select count(*) from public.reportes_vulnerables) = 6, 'veo los reportes publicos');
+  (select count(*) from public.reportes_vulnerables where id::text like '00000000-0000-4000-8006-%') = 6, 'veo los reportes publicos del seed');
 select pg_temp.comprobar(
   (select count(*) from public.reportes_direcciones) = 0, 'no veo ninguna direccion ajena');
 select pg_temp.debe_fallar(

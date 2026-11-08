@@ -37,6 +37,8 @@ scripts/demo.sh down              # apaga pasarela, túnel y base
 | `npm run db:test` | Prueba privacidad y permisos contra la base local |
 | `npm run build` | Compila la PWA en `dist/` |
 
+El asistente por voz usa DeepSeek. Para activarlo, define `DEEPSEEK_API_KEY` en `supabase/.env` (ignorado por git; no se entrega). Sin esa clave la app funciona igual y solo el asistente queda desactivado.
+
 Para que el botón Contactar funcione en la demo, define `DEMO_WHATSAPP` en `supabase/.env` (ignorado por git). Se aplica a los vecinos ficticios al levantar la demo, así que **cualquiera que pruebe Contactar verá ese número**.
 
 ## Qué funciona sin señal
