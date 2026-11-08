@@ -24,6 +24,8 @@
 - Grabar el video de respaldo (guion en `ExpoHackaton/07_…`).
 - Repartir roles y preguntas; ensayar 3 veces con cronómetro.
 - Entrega en OneDrive antes del domingo 8: `git archive -o cuadra.zip HEAD` (no incluye `.env`).
+- Micrófono en un Oppo (abierto desde WhatsApp) sigue sin funcionar tras el botón "Abrir en Chrome". Otras personas lo probarán en sus modelos; pedirles: modelo, cómo abrieron el enlace, qué pasa al tocar "Hablar", si aparece el botón verde. Si no se aclara, hacer una pantalla `?diagnostico`.
+- Para la demo: abrir el enlace en Chrome e instalar la app desde ahí (⋮ → Instalar app); instalada desde HeyTap hereda su micrófono roto.
 - Hoja de ruta: verificación con DNI, límite por IP del asistente, notificaciones push.
 
 ## Comandos
