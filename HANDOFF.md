@@ -1,4 +1,20 @@
-# HANDOFF — Cuadra (2026-11-07, noche)
+# HANDOFF — Cuadra (2026-11-08, madrugada)
+
+## Entrega (cierra domingo 8, 7:00 p. m.)
+- Versión del jurado: `~/Documents/PeruTM-Cuadra/` y `~/Documents/PeruTM-Cuadra.zip` (git archive de `1ca2b14`, sin HANDOFF ni .env). Falta que Juan la suba a OneDrive/Drive.
+- Diapositivas finales: `~/Documents/ExpoHackaton/Cuadra_Sustentacion_final.pdf` (22, sin marca de Gemini, diap. 19 corregida, cierre agregado). Script: `ExpoHackaton/scripts/postproceso.py`.
+- Preguntas difíciles: `ExpoHackaton/12_Preguntas_dificiles.md`. Prompts NotebookLM: `11_Prompt_NotebookLM.md`.
+- `db:test` ya no depende de la cantidad de reportes de la demo (pasa con datos vivos).
+- Base de la demo detenida con `supabase stop` (con respaldo; los datos siguen).
+
+## Día de la presentación
+1. `scripts/demo.sh up` → URL del túnel. Activar asistente (DEEPSEEK_API_KEY en supabase/.env).
+2. QR: `qrencode -s 12 -m 2 -o ~/Documents/ExpoHackaton/qr_demo.png "$URL"`; mostrarlo en la diap. 14 y pegar el enlace en el chat.
+3. Al terminar: `scripts/demo.sh down` y `ss -ltnp`.
+
+---
+
+# Anterior (2026-11-07, noche)
 
 ## Estado
 - Rama `funciones-completas`, PR #1 hacia `main`. Todo subido.
